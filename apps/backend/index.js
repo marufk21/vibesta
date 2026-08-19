@@ -8,13 +8,15 @@ import postRoute from "./routes/post.route.js";
 import messageRoute from "./routes/message.route.js";
 import { app, server } from "./socket/socket.js";
 import path from "path";
- 
+import { fileURLToPath } from "url";
+
 dotenv.config();
 
 
 const PORT = process.env.PORT || 3000;
 
-const __dirname = path.resolve();
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const frontendDist = path.resolve(__dirname, "../frontend/dist");
 
 //middlewares
 app.use(express.json());
@@ -32,9 +34,9 @@ app.use("/api/v1/post", postRoute);
 app.use("/api/v1/message", messageRoute);
 
 
-app.use(express.static(path.join(__dirname, "/frontend/dist")));
+app.use(express.static(frontendDist));
 app.get("*", (req,res)=>{
-    res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
+    res.sendFile(path.join(frontendDist, "index.html"));
 })
 
 

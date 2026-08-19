@@ -1,31 +1,21 @@
 {
-  "name": "backend",
+  "name": "vibesta",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "private": true,
+  "packageManager": "npm@10.9.4",
   "type": "module",
+  "description": "Vibesta monorepo powered by Turborepo",
+  "workspaces": [
+    "apps/*"
+  ],
   "scripts": {
-    "dev": "nodemon backend/index.js",
-    "build": "npm install && npm install --prefix frontend && npm run build --prefix frontend",
-    "start": "nodemon backend/index.js"
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "start": "turbo start --filter=@vibesta/backend",
+    "lint": "turbo lint",
+    "clean": "turbo clean"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "bcryptjs": "^2.4.3",
-    "cloudinary": "^2.3.1",
-    "cookie-parser": "^1.4.6",
-    "cors": "^2.8.5",
-    "datauri": "^4.1.0",
-    "dotenv": "^16.4.5",
-    "express": "^4.19.2",
-    "jsonwebtoken": "^9.0.2",
-    "mongodb": "^6.9.0",
-    "mongoose": "^8.5.1",
-    "multer": "^1.4.5-lts.1",
-    "nodemon": "^3.1.4",
-    "sharp": "^0.33.4",
-    "socket.io": "^4.7.5"
+  "devDependencies": {
+    "turbo": "^2.10.11"
   }
 }
