@@ -4,8 +4,9 @@ import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { setSelectedUser } from '@/redux/authSlice';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
-import { MessageCircleCode } from 'lucide-react';
+import { ArrowLeft, MessageCircleCode } from 'lucide-react';
 import Messages from './Messages';
+import { ScrollArea } from './ui/scroll-area';
 import axios from 'axios';
 import { setMessages } from '@/redux/chatSlice';
 import { API_BASE_URL } from '@/lib/api';
@@ -46,53 +47,85 @@ const ChatPage = () => {
   }, []);
 
   return (
-    <div className="flex ml-[16%] h-screen">
-      <section className="w-full md:w-1/4 my-8">
-        <h1 className="font-bold mb-4 px-3 text-xl">{user?.username}</h1>
-        <hr className="mb-4 border-gray-300" />
-        <div className="overflow-y-auto h-[80vh]">
-          {suggestedUsers.map((suggestedUser) => {
-            const isOnline = onlineUsers.includes(suggestedUser?._id);
-            return (
-              <div
-                onClick={() => dispatch(setSelectedUser(suggestedUser))}
-                className="flex gap-3 items-center p-3 hover:bg-gray-50 cursor-pointer"
-              >
-                <Avatar className="w-14 h-14">
-                  <AvatarImage src={suggestedUser?.profilePicture} />
-                  <AvatarFallback>CN</AvatarFallback>
-                </Avatar>
-                <div className="flex flex-col">
-                  <span className="font-medium">{suggestedUser?.username}</span>
-                  <span
-                    className={`text-xs font-bold ${isOnline ? 'text-green-600' : 'text-red-600'} `}
-                  >
-                    {isOnline ? 'online' : 'offline'}
-                  </span>
+    <div className="flex h-[calc(100dvh-3.5rem)] w-full lg:h-screen">
+      {/* User list */}
+      <section
+        className={`${selectedUser ? 'hidden md:block md:w-1/4' : 'w-full md:w-1/4'} border-r border-border`}
+      >
+        <div className="flex h-full flex-col">
+          <h1 className="border-b border-border px-4 py-4 text-lg font-bold">
+            {user?.username}
+          </h1>
+          <ScrollArea className="flex-1">
+            {suggestedUsers.map((suggestedUser) => {
+              const isOnline = onlineUsers.includes(suggestedUser?._id);
+              return (
+                <div
+                  key={suggestedUser?._id}
+                  onClick={() => dispatch(setSelectedUser(suggestedUser))}
+                  className="flex cursor-pointer items-center gap-3 p-3 transition-colors hover:bg-accent"
+                >
+                  <Avatar className="h-12 w-12">
+                    <AvatarImage
+                      src={suggestedUser?.profilePicture}
+                      alt="profile"
+                    />
+                    <AvatarFallback>
+                      {suggestedUser?.username?.[0]?.toUpperCase() || 'U'}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex flex-col">
+                    <span className="text-sm font-medium">
+                      {suggestedUser?.username}
+                    </span>
+                    <span
+                      className={`text-xs font-semibold ${
+                        isOnline ? 'text-green-600' : 'text-muted-foreground'
+                      }`}
+                    >
+                      {isOnline ? 'online' : 'offline'}
+                    </span>
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </ScrollArea>
         </div>
       </section>
+
+      {/* Conversation / empty state */}
       {selectedUser ? (
-        <section className="flex-1 border-l border-l-gray-300 flex flex-col h-full">
-          <div className="flex gap-3 items-center px-3 py-2 border-b border-gray-300 sticky top-0 bg-white z-10">
+        <section className="flex h-full w-full flex-1 flex-col">
+          <div className="sticky top-0 z-10 flex items-center gap-3 border-b border-border bg-background px-3 py-3">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => dispatch(setSelectedUser(null))}
+              className="md:hidden"
+              aria-label="Back to chats"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
             <Avatar>
               <AvatarImage src={selectedUser?.profilePicture} alt="profile" />
-              <AvatarFallback>CN</AvatarFallback>
+              <AvatarFallback>
+                {selectedUser?.username?.[0]?.toUpperCase() || 'U'}
+              </AvatarFallback>
             </Avatar>
-            <div className="flex flex-col">
-              <span>{selectedUser?.username}</span>
-            </div>
+            <span className="text-sm font-semibold">
+              {selectedUser?.username}
+            </span>
           </div>
           <Messages selectedUser={selectedUser} />
-          <div className="flex items-center p-4 border-t border-t-gray-300">
+          <div className="flex items-center gap-2 border-t border-border p-3">
             <Input
               value={textMessage}
               onChange={(e) => setTextMessage(e.target.value)}
+              onKeyDown={(e) =>
+                e.key === 'Enter' && sendMessageHandler(selectedUser?._id)
+              }
               type="text"
-              className="flex-1 mr-2 focus-visible:ring-transparent"
+              className="flex-1"
               placeholder="Messages..."
             />
             <Button onClick={() => sendMessageHandler(selectedUser?._id)}>
@@ -101,10 +134,12 @@ const ChatPage = () => {
           </div>
         </section>
       ) : (
-        <div className="flex flex-col items-center justify-center mx-auto">
-          <MessageCircleCode className="w-32 h-32 my-4" />
+        <div className="hidden flex-1 flex-col items-center justify-center md:flex">
+          <MessageCircleCode className="my-4 h-32 w-32 text-muted-foreground" />
           <h1 className="font-medium">Your messages</h1>
-          <span>Send a message to start a chat.</span>
+          <span className="text-sm text-muted-foreground">
+            Send a message to start a chat.
+          </span>
         </div>
       )}
     </div>

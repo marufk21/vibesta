@@ -1,15 +1,27 @@
 import { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
-import { Dialog, DialogContent, DialogTrigger } from './ui/dialog';
-import { Bookmark, MessageCircle, MoreHorizontal, Send } from 'lucide-react';
+import {
+  Bookmark,
+  Heart,
+  MessageCircle,
+  MoreHorizontal,
+  Send,
+} from 'lucide-react';
 import { Button } from './ui/button';
-import { FaHeart, FaRegHeart } from 'react-icons/fa';
+import { Input } from './ui/input';
 import CommentDialog from './CommentDialog';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 import { toast } from 'sonner';
 import { setPosts, setSelectedPost } from '@/redux/postSlice';
 import { Badge } from './ui/badge';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from './ui/dropdown-menu';
 import { API_BASE_URL } from '@/lib/api';
 
 const Post = ({ post }) => {
@@ -24,11 +36,7 @@ const Post = ({ post }) => {
 
   const changeEventHandler = (e) => {
     const inputText = e.target.value;
-    if (inputText.trim()) {
-      setText(inputText);
-    } else {
-      setText('');
-    }
+    setText(inputText.trim() ? inputText : '');
   };
 
   const likeOrDislikeHandler = async () => {
@@ -38,13 +46,10 @@ const Post = ({ post }) => {
         `${API_BASE_URL}/api/v1/post/${post._id}/${action}`,
         { withCredentials: true }
       );
-      console.log(res.data);
       if (res.data.success) {
         const updatedLikes = liked ? postLike - 1 : postLike + 1;
         setPostLike(updatedLikes);
         setLiked(!liked);
-
-        // apne post ko update krunga
         const updatedPostData = posts.map((p) =>
           p._id === post._id
             ? {
@@ -69,21 +74,16 @@ const Post = ({ post }) => {
         `${API_BASE_URL}/api/v1/post/${post._id}/comment`,
         { text },
         {
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           withCredentials: true,
         }
       );
-      console.log(res.data);
       if (res.data.success) {
         const updatedCommentData = [...comment, res.data.comment];
         setComment(updatedCommentData);
-
         const updatedPostData = posts.map((p) =>
           p._id === post._id ? { ...p, comments: updatedCommentData } : p
         );
-
         dispatch(setPosts(updatedPostData));
         toast.success(res.data.message);
         setText('');
@@ -108,7 +108,7 @@ const Post = ({ post }) => {
       }
     } catch (error) {
       console.log(error);
-      toast.error(error.response.data.messsage);
+      toast.error(error.response.data.message);
     }
   };
 
@@ -125,118 +125,129 @@ const Post = ({ post }) => {
       console.log(error);
     }
   };
+
+  const openComments = () => {
+    dispatch(setSelectedPost(post));
+    setOpen(true);
+  };
+
   return (
-    <div className="my-8 w-full max-w-sm mx-auto">
-      <div className="flex items-center justify-between">
+    <div className="mb-8 w-full max-w-[470px] rounded-lg border border-border bg-card shadow-sm">
+      <div className="flex items-center justify-between p-3">
         <div className="flex items-center gap-2">
           <Avatar>
             <AvatarImage src={post.author?.profilePicture} alt="post_image" />
-            <AvatarFallback>CN</AvatarFallback>
+            <AvatarFallback>
+              {post.author?.username?.[0]?.toUpperCase() || 'U'}
+            </AvatarFallback>
           </Avatar>
-          <div className="flex items-center gap-3">
-            <h1>{post.author?.username}</h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-sm font-semibold">{post.author?.username}</h1>
             {user?._id === post.author._id && (
               <Badge variant="secondary">Author</Badge>
             )}
           </div>
         </div>
-        <Dialog>
-          <DialogTrigger asChild>
-            <MoreHorizontal className="cursor-pointer" />
-          </DialogTrigger>
-          <DialogContent className="flex flex-col items-center text-sm text-center">
-            {post?.author?._id !== user?._id && (
-              <Button
-                variant="ghost"
-                className="cursor-pointer w-fit text-[#ED4956] font-bold"
-              >
-                Unfollow
-              </Button>
-            )}
-
-            <Button variant="ghost" className="cursor-pointer w-fit">
-              Add to favorites
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" aria-label="Post options">
+              <MoreHorizontal className="h-5 w-5" />
             </Button>
-            {user && user?._id === post?.author._id && (
-              <Button
-                onClick={deletePostHandler}
-                variant="ghost"
-                className="cursor-pointer w-fit"
-              >
-                Delete
-              </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            {post?.author?._id !== user?._id && (
+              <DropdownMenuItem className="cursor-pointer font-semibold text-destructive">
+                Unfollow
+              </DropdownMenuItem>
             )}
-          </DialogContent>
-        </Dialog>
+            <DropdownMenuItem className="cursor-pointer">
+              Add to favorites
+            </DropdownMenuItem>
+            {user && user?._id === post?.author._id && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={deletePostHandler}
+                  className="cursor-pointer font-semibold text-destructive"
+                >
+                  Delete
+                </DropdownMenuItem>
+              </>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
+
       <img
-        className="rounded-sm my-2 w-full aspect-square object-cover"
+        className="aspect-square w-full object-cover"
         src={post.image}
         alt="post_img"
       />
 
-      <div className="flex items-center justify-between my-2">
+      <div className="flex items-center justify-between px-3 pt-3">
         <div className="flex items-center gap-3">
-          {liked ? (
-            <FaHeart
-              onClick={likeOrDislikeHandler}
-              size={'24'}
-              className="cursor-pointer text-red-600"
+          <button
+            onClick={likeOrDislikeHandler}
+            aria-label="Like"
+            className="transition-colors"
+          >
+            <Heart
+              className={`h-6 w-6 ${liked ? 'fill-destructive text-destructive' : 'hover:text-muted-foreground'}`}
             />
-          ) : (
-            <FaRegHeart
-              onClick={likeOrDislikeHandler}
-              size={'22px'}
-              className="cursor-pointer hover:text-gray-600"
-            />
-          )}
-
-          <MessageCircle
-            onClick={() => {
-              dispatch(setSelectedPost(post));
-              setOpen(true);
-            }}
-            className="cursor-pointer hover:text-gray-600"
-          />
-          <Send className="cursor-pointer hover:text-gray-600" />
+          </button>
+          <button
+            onClick={openComments}
+            aria-label="Comment"
+            className="transition-colors hover:text-muted-foreground"
+          >
+            <MessageCircle className="h-6 w-6" />
+          </button>
+          <Send className="h-6 w-6 cursor-pointer hover:text-muted-foreground" />
         </div>
-        <Bookmark
+        <button
           onClick={bookmarkHandler}
-          className="cursor-pointer hover:text-gray-600"
-        />
-      </div>
-      <span className="font-medium block mb-2">{postLike} likes</span>
-      <p>
-        <span className="font-medium mr-2">{post.author?.username}</span>
-        {post.caption}
-      </p>
-      {comment.length > 0 && (
-        <span
-          onClick={() => {
-            dispatch(setSelectedPost(post));
-            setOpen(true);
-          }}
-          className="cursor-pointer text-sm text-gray-400"
+          aria-label="Save"
+          className="transition-colors hover:text-muted-foreground"
         >
-          View all {comment.length} comments
+          <Bookmark className="h-6 w-6" />
+        </button>
+      </div>
+
+      <div className="px-3 pb-3 pt-1">
+        <span className="block pb-1 text-sm font-semibold">
+          {postLike} likes
         </span>
-      )}
+        <p className="text-sm">
+          <span className="mr-2 font-semibold">{post.author?.username}</span>
+          {post.caption}
+        </p>
+        {comment.length > 0 && (
+          <span
+            onClick={openComments}
+            className="cursor-pointer text-sm text-muted-foreground"
+          >
+            View all {comment.length} comments
+          </span>
+        )}
+      </div>
+
       <CommentDialog open={open} setOpen={setOpen} />
-      <div className="flex items-center justify-between">
-        <input
+
+      <div className="flex items-center justify-between gap-2 border-t border-border px-3 py-3">
+        <Input
           type="text"
           placeholder="Add a comment..."
           value={text}
           onChange={changeEventHandler}
-          className="outline-none text-sm w-full"
+          className="border-none px-0 shadow-none focus-visible:ring-0"
         />
         {text && (
-          <span
+          <button
             onClick={commentHandler}
-            className="text-[#3BADF8] cursor-pointer"
+            className="cursor-pointer text-sm font-semibold text-primary"
           >
             Post
-          </span>
+          </button>
         )}
       </div>
     </div>

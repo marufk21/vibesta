@@ -78,18 +78,20 @@ const EditProfile = () => {
     }
   };
   return (
-    <div className="flex max-w-2xl mx-auto pl-10">
-      <section className="flex flex-col gap-6 w-full my-8">
-        <h1 className="font-bold text-xl">Edit Profile</h1>
-        <div className="flex items-center justify-between bg-gray-100 rounded-xl p-4">
+    <div className="mx-auto w-full max-w-2xl px-4 md:px-8">
+      <section className="my-8 flex w-full flex-col gap-6">
+        <h1 className="text-xl font-bold">Edit Profile</h1>
+        <div className="flex flex-col items-start justify-between gap-4 rounded-xl bg-muted p-4 sm:flex-row sm:items-center">
           <div className="flex items-center gap-3">
             <Avatar>
               <AvatarImage src={user?.profilePicture} alt="post_image" />
-              <AvatarFallback>CN</AvatarFallback>
+              <AvatarFallback>
+                {user?.username?.[0]?.toUpperCase() || 'U'}
+              </AvatarFallback>
             </Avatar>
             <div>
-              <h1 className="font-bold text-sm">{user?.username}</h1>
-              <span className="text-gray-600">
+              <h1 className="text-sm font-bold">{user?.username}</h1>
+              <span className="text-muted-foreground">
                 {user?.bio || 'Bio here...'}
               </span>
             </div>
@@ -102,22 +104,22 @@ const EditProfile = () => {
           />
           <Button
             onClick={() => imageRef?.current.click()}
-            className="bg-[#0095F6] h-8 hover:bg-[#318bc7]"
+            className="bg-primary hover:bg-primary/90"
           >
             Change photo
           </Button>
         </div>
-        <div>
-          <h1 className="font-bold text-xl mb-2">Bio</h1>
+        <div className="space-y-1.5">
+          <h1 className="mb-1 text-lg font-bold">Bio</h1>
           <Textarea
             value={input.bio}
             onChange={(e) => setInput({ ...input, bio: e.target.value })}
             name="bio"
-            className="focus-visible:ring-transparent"
+            className="focus-visible:ring-ring"
           />
         </div>
         <div>
-          <h1 className="font-bold mb-2">Gender</h1>
+          <h1 className="mb-2 font-bold">Gender</h1>
           <Select
             defaultValue={input.gender}
             onValueChange={selectChangeHandler}
@@ -135,14 +137,14 @@ const EditProfile = () => {
         </div>
         <div className="flex justify-end">
           {loading ? (
-            <Button className="w-fit bg-[#0095F6] hover:bg-[#2a8ccd]">
+            <Button className="w-fit bg-primary hover:bg-primary/90">
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               Please wait
             </Button>
           ) : (
             <Button
               onClick={editProfileHandler}
-              className="w-fit bg-[#0095F6] hover:bg-[#2a8ccd]"
+              className="w-fit bg-primary hover:bg-primary/90"
             >
               Submit
             </Button>

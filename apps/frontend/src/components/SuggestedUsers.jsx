@@ -1,40 +1,45 @@
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { Button } from './ui/button';
 
 const SuggestedUsers = () => {
   const { suggestedUsers } = useSelector((store) => store.auth);
   return (
-    <div className="my-10">
+    <div className="mt-8">
       <div className="flex items-center justify-between text-sm">
-        <h1 className="font-semibold text-gray-600">Suggested for you</h1>
-        <span className="font-medium cursor-pointer">See All</span>
+        <h1 className="font-semibold text-muted-foreground">
+          Suggested for you
+        </h1>
+        <span className="cursor-pointer font-medium">See All</span>
       </div>
       {suggestedUsers.map((user) => {
         return (
           <div
             key={user._id}
-            className="flex items-center justify-between my-5"
+            className="my-4 flex items-center justify-between"
           >
             <div className="flex items-center gap-2">
               <Link to={`/profile/${user?._id}`}>
                 <Avatar>
                   <AvatarImage src={user?.profilePicture} alt="post_image" />
-                  <AvatarFallback>CN</AvatarFallback>
+                  <AvatarFallback>
+                    {user?.username?.[0]?.toUpperCase() || 'U'}
+                  </AvatarFallback>
                 </Avatar>
               </Link>
               <div>
-                <h1 className="font-semibold text-sm">
+                <h1 className="text-sm font-semibold">
                   <Link to={`/profile/${user?._id}`}>{user?.username}</Link>
                 </h1>
-                <span className="text-gray-600 text-sm">
+                <span className="text-sm text-muted-foreground">
                   {user?.bio || 'Bio here...'}
                 </span>
               </div>
             </div>
-            <span className="text-[#3BADF8] text-xs font-bold cursor-pointer hover:text-[#3495d6]">
+            <Button variant="link" size="sm" className="px-0 font-bold">
               Follow
-            </span>
+            </Button>
           </div>
         );
       })}

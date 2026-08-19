@@ -4,7 +4,4 @@ dist
 .env
 *.log
 .DS_Store
-
-Build: New UI - Responsive
-Host 
-New Features: Video / *
+tasks.md

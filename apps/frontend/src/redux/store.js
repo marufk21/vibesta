@@ -7,12 +7,6 @@ import rtnSlice from './rtnSlice.js';
 
 import {
   persistReducer,
-  FLUSH,
-  REHYDRATE,
-  PAUSE,
-  PERSIST,
-  PURGE,
-  REGISTER,
 } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 
@@ -20,6 +14,9 @@ const persistConfig = {
   key: 'root',
   version: 1,
   storage,
+  // The socket is a non-serializable live connection - it must NOT be
+  // persisted to storage. It is recreated on every app load in App.jsx.
+  blacklist: ['socketio'],
 };
 
 const rootReducer = combineReducers({
@@ -37,7 +34,9 @@ const store = configureStore({
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {
-        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+        // Ignore the socket instance which is intentionally non-serializable
+        ignoredActions: ['socketio/setSocket'],
+        ignoredPaths: ['socketio.socket'],
       },
     }),
 });

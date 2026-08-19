@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogHeader } from './ui/dialog';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Textarea } from './ui/textarea';
 import { Button } from './ui/button';
+import { Label } from './ui/label';
 import { readFileAsDataURL } from '@/lib/utils';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -64,28 +65,34 @@ const CreatePost = ({ open, setOpen }) => {
         <DialogHeader className="text-center font-semibold">
           Create New Post
         </DialogHeader>
-        <div className="flex gap-3 items-center">
+        <div className="flex items-center gap-3">
           <Avatar>
             <AvatarImage src={user?.profilePicture} alt="img" />
-            <AvatarFallback>CN</AvatarFallback>
+            <AvatarFallback>
+              {user?.username?.[0]?.toUpperCase() || 'U'}
+            </AvatarFallback>
           </Avatar>
           <div>
-            <h1 className="font-semibold text-xs">{user?.username}</h1>
-            <span className="text-gray-600 text-xs">Bio here...</span>
+            <h1 className="text-xs font-semibold">{user?.username}</h1>
+            <span className="text-xs text-muted-foreground">Bio here...</span>
           </div>
         </div>
-        <Textarea
-          value={caption}
-          onChange={(e) => setCaption(e.target.value)}
-          className="focus-visible:ring-transparent border-none"
-          placeholder="Write a caption..."
-        />
+        <div className="space-y-1.5">
+          <Label htmlFor="caption">Caption</Label>
+          <Textarea
+            id="caption"
+            value={caption}
+            onChange={(e) => setCaption(e.target.value)}
+            className="focus-visible:ring-ring"
+            placeholder="Write a caption..."
+          />
+        </div>
         {imagePreview && (
-          <div className="w-full h-64 flex items-center justify-center">
+          <div className="flex h-64 w-full items-center justify-center">
             <img
               src={imagePreview}
               alt="preview_img"
-              className="object-cover h-full w-full rounded-md"
+              className="h-full w-full rounded-md object-cover"
             />
           </div>
         )}
@@ -97,13 +104,14 @@ const CreatePost = ({ open, setOpen }) => {
         />
         <Button
           onClick={() => imageRef.current.click()}
-          className="w-fit mx-auto bg-[#0095F6] hover:bg-[#258bcf] "
+          variant="outline"
+          className="mx-auto w-fit"
         >
           Select from computer
         </Button>
         {imagePreview &&
           (loading ? (
-            <Button>
+            <Button disabled>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               Please wait
             </Button>

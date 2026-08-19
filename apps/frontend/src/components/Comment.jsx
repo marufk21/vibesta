@@ -2,16 +2,18 @@ import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 
 const Comment = ({ comment }) => {
   return (
-    <div className="my-2">
-      <div className="flex gap-3 items-center">
-        <Avatar>
-          <AvatarImage src={comment?.author?.profilePicture} />
-          <AvatarFallback>CN</AvatarFallback>
+    <div className="mb-3">
+      <div className="flex items-start gap-3">
+        <Avatar className="h-8 w-8">
+          <AvatarImage src={comment?.author?.profilePicture} alt="profile" />
+          <AvatarFallback>
+            {comment?.author?.username?.[0]?.toUpperCase() || 'U'}
+          </AvatarFallback>
         </Avatar>
-        <h1 className="font-bold text-sm">
-          {comment?.author.username}{' '}
-          <span className="font-normal pl-1">{comment?.text}</span>
-        </h1>
+        <p className="text-sm">
+          <span className="font-semibold">{comment?.author.username}</span>{' '}
+          <span className="pl-1 text-foreground/90">{comment?.text}</span>
+        </p>
       </div>
     </div>
   );

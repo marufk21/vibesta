@@ -8,12 +8,14 @@ const Home = () => {
   useGetAllPost();
   useGetSuggestedUsers();
   return (
-    <div className="flex">
-      <div className="flex-grow">
+    <div className="flex justify-center">
+      <div className="w-full min-w-0 max-w-xl pb-8">
         <Feed />
         <Outlet />
       </div>
-      <RightSidebar />
+      <div className="hidden w-full max-w-sm shrink-0 pl-8 pr-4 xl:block">
+        <RightSidebar />
+      </div>
     </div>
   );
 };
