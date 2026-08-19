@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
-import { Input } from './ui/input'
-import { Button } from './ui/button'
+import { useEffect, useState } from 'react';
+import { Input } from './ui/input';
+import { Button } from './ui/button';
 import axios from 'axios';
 import { toast } from 'sonner';
 import { Link, useNavigate } from 'react-router-dom';
@@ -10,106 +10,110 @@ import { setAuthUser } from '@/redux/authSlice';
 import { API_BASE_URL } from '@/lib/api';
 
 const Login = () => {
-    const [input, setInput] = useState({
-        email: "",
-        password: ""
-    });
-    const [loading, setLoading] = useState(false);
-    const { user } = useSelector(store => store.auth);
-    const navigate = useNavigate();
-    const dispatch = useDispatch();
+  const [input, setInput] = useState({
+    email: '',
+    password: '',
+  });
+  const [loading, setLoading] = useState(false);
+  const { user } = useSelector((store) => store.auth);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-    const changeEventHandler = (e) => {
-        setInput({ ...input, [e.target.name]: e.target.value });
+  const changeEventHandler = (e) => {
+    setInput({ ...input, [e.target.name]: e.target.value });
+  };
+
+  const signupHandler = async (e) => {
+    e.preventDefault();
+    if (loading) return;
+    try {
+      setLoading(true);
+      const res = await axios.post(`${API_BASE_URL}/api/v1/user/login`, input, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        withCredentials: true,
+      });
+      if (res.data.success) {
+        dispatch(setAuthUser(res.data.user));
+        navigate('/');
+        toast.success(res.data.message);
+        setInput({
+          email: '',
+          password: '',
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      const errorMessage =
+        error?.response?.data?.message || 'Unable to login. Please try again.';
+      toast.error(errorMessage);
+    } finally {
+      setLoading(false);
     }
+  };
 
-    const signupHandler = async (e) => {
-        e.preventDefault();
-        if (loading) return;
-        try {
-            setLoading(true);
-            const res = await axios.post(`${API_BASE_URL}/api/v1/user/login`, input, {
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                withCredentials: true
-            });
-            if (res.data.success) {
-                dispatch(setAuthUser(res.data.user));
-                navigate("/");
-                toast.success(res.data.message);
-                setInput({
-                    email: "",
-                    password: ""
-                });
-            }
-        } catch (error) {
-            console.log(error);
-            const errorMessage = error?.response?.data?.message || "Unable to login. Please try again.";
-            toast.error(errorMessage);
-        } finally {
-            setLoading(false);
-        }
+  useEffect(() => {
+    if (user) {
+      navigate('/');
     }
-
-    useEffect(() => {
-        if (user) {
-            navigate("/");
-        }
-    }, [user, navigate])
-    return (
-        <div className="flex items-center w-screen h-screen justify-center bg-gray-100">
-            <form
-                onSubmit={signupHandler}
-                className="shadow-lg flex flex-col gap-5 p-6 sm:p-8 border border-gray-200 rounded-md w-full max-w-sm bg-white"
-            >
-                <div className="my-4">
-                    <h1 className="text-center font-bold text-xl">Vibesta</h1>
-                    <p className="text-sm text-center text-gray-600">
-                        Login to see photos & videos from your friends
-                    </p>
-                </div>
-                <div>
-                    <label htmlFor="email" className="font-medium">Email</label>
-                    <Input
-                        type="email"
-                        id="email"
-                        name="email"
-                        value={input.email}
-                        onChange={changeEventHandler}
-                        className="focus-visible:ring-transparent my-2 w-full border border-gray-300 rounded-md px-3 py-2"
-                    />
-                </div>
-                <div>
-                    <label htmlFor="password" className="font-medium">Password</label>
-                    <Input
-                        type="password"
-                        id="password"
-                        name="password"
-                        value={input.password}
-                        onChange={changeEventHandler}
-                        className="focus-visible:ring-transparent my-2 w-full border border-gray-300 rounded-md px-3 py-2"
-                    />
-                </div>
-                {loading ? (
-                    <Button type="button" disabled>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Please wait
-                    </Button>
-                ) : (
-                    <Button type="submit">Login</Button>
-                )}
-                <span className="text-center text-sm text-gray-600">
-                    Don't have an account?
-                    <Link to="/signup" className="text-blue-600"> Signup</Link>
-                </span>
-            </form>
+  }, [user, navigate]);
+  return (
+    <div className="flex items-center w-screen h-screen justify-center bg-gray-100">
+      <form
+        onSubmit={signupHandler}
+        className="shadow-lg flex flex-col gap-5 p-6 sm:p-8 border border-gray-200 rounded-md w-full max-w-sm bg-white"
+      >
+        <div className="my-4">
+          <h1 className="text-center font-bold text-xl">Vibesta</h1>
+          <p className="text-sm text-center text-gray-600">
+            Login to see photos & videos from your friends
+          </p>
         </div>
+        <div>
+          <label htmlFor="email" className="font-medium">
+            Email
+          </label>
+          <Input
+            type="email"
+            id="email"
+            name="email"
+            value={input.email}
+            onChange={changeEventHandler}
+            className="focus-visible:ring-transparent my-2 w-full border border-gray-300 rounded-md px-3 py-2"
+          />
+        </div>
+        <div>
+          <label htmlFor="password" className="font-medium">
+            Password
+          </label>
+          <Input
+            type="password"
+            id="password"
+            name="password"
+            value={input.password}
+            onChange={changeEventHandler}
+            className="focus-visible:ring-transparent my-2 w-full border border-gray-300 rounded-md px-3 py-2"
+          />
+        </div>
+        {loading ? (
+          <Button type="button" disabled>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Please wait
+          </Button>
+        ) : (
+          <Button type="submit">Login</Button>
+        )}
+        <span className="text-center text-sm text-gray-600">
+          Don't have an account?
+          <Link to="/signup" className="text-blue-600">
+            {' '}
+            Signup
+          </Link>
+        </span>
+      </form>
+    </div>
+  );
+};
 
-
-
-
-    )
-}
-
-export default Login
+export default Login;

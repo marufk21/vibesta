@@ -1,66 +1,86 @@
-import { useEffect } from 'react'
-import ChatPage from './components/ChatPage'
-import EditProfile from './components/EditProfile'
-import Home from './components/Home'
-import Login from './components/Login'
-import MainLayout from './components/MainLayout'
-import Profile from './components/Profile'
-import Signup from './components/Signup'
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import { io } from "socket.io-client";
-import { useDispatch, useSelector } from 'react-redux'
-import { setSocket } from './redux/socketSlice'
-import { setOnlineUsers } from './redux/chatSlice'
-import { setLikeNotification } from './redux/rtnSlice'
-import ProtectedRoutes from './components/ProtectedRoutes'
-import { SOCKET_URL } from './lib/api'
-
+import { useEffect } from 'react';
+import ChatPage from './components/ChatPage';
+import EditProfile from './components/EditProfile';
+import Home from './components/Home';
+import Login from './components/Login';
+import MainLayout from './components/MainLayout';
+import Profile from './components/Profile';
+import Signup from './components/Signup';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { io } from 'socket.io-client';
+import { useDispatch, useSelector } from 'react-redux';
+import { setSocket } from './redux/socketSlice';
+import { setOnlineUsers } from './redux/chatSlice';
+import { setLikeNotification } from './redux/rtnSlice';
+import ProtectedRoutes from './components/ProtectedRoutes';
+import { SOCKET_URL } from './lib/api';
 
 const browserRouter = createBrowserRouter([
   {
-    path: "/",
-    element: <ProtectedRoutes><MainLayout /></ProtectedRoutes>,
+    path: '/',
+    element: (
+      <ProtectedRoutes>
+        <MainLayout />
+      </ProtectedRoutes>
+    ),
     children: [
       {
         path: '/',
-        element: <ProtectedRoutes><Home /></ProtectedRoutes>
+        element: (
+          <ProtectedRoutes>
+            <Home />
+          </ProtectedRoutes>
+        ),
       },
       {
         path: '/profile/:id',
-        element: <ProtectedRoutes> <Profile /></ProtectedRoutes>
+        element: (
+          <ProtectedRoutes>
+            {' '}
+            <Profile />
+          </ProtectedRoutes>
+        ),
       },
       {
         path: '/account/edit',
-        element: <ProtectedRoutes><EditProfile /></ProtectedRoutes>
+        element: (
+          <ProtectedRoutes>
+            <EditProfile />
+          </ProtectedRoutes>
+        ),
       },
       {
         path: '/chat',
-        element: <ProtectedRoutes><ChatPage /></ProtectedRoutes>
+        element: (
+          <ProtectedRoutes>
+            <ChatPage />
+          </ProtectedRoutes>
+        ),
       },
-    ]
+    ],
   },
   {
     path: '/login',
-    element: <Login />
+    element: <Login />,
   },
   {
     path: '/signup',
-    element: <Signup />
+    element: <Signup />,
   },
-])
+]);
 
 function App() {
-  const { user } = useSelector(store => store.auth);
-  const { socket } = useSelector(store => store.socketio);
+  const { user } = useSelector((store) => store.auth);
+  const { socket } = useSelector((store) => store.socketio);
   const dispatch = useDispatch();
 
   useEffect(() => {
     if (user) {
       const socketio = io(SOCKET_URL, {
         query: {
-          userId: user?._id
+          userId: user?._id,
         },
-        transports: ['websocket']
+        transports: ['websocket'],
       });
       dispatch(setSocket(socketio));
 
@@ -76,7 +96,7 @@ function App() {
       return () => {
         socketio.close();
         dispatch(setSocket(null));
-      }
+      };
     } else if (socket) {
       socket.close();
       dispatch(setSocket(null));
@@ -90,7 +110,7 @@ function App() {
         future={{ v7_startTransition: true }}
       />
     </>
-  )
+  );
 }
 
-export default App
+export default App;
