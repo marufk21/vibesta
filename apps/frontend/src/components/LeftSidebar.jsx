@@ -10,6 +10,7 @@ import CreatePost from './CreatePost'
 import { setPosts, setSelectedPost } from '@/redux/postSlice'
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
 import { Button } from './ui/button'
+import { API_BASE_URL } from '@/lib/api'
 
 const LeftSidebar = () => {
     const navigate = useNavigate();
@@ -21,7 +22,7 @@ const LeftSidebar = () => {
 
     const logoutHandler = async () => {
         try {
-            const res = await axios.get('//vibesta.onrender.com/api/v1/user/logout', { withCredentials: true });
+            const res = await axios.get(`${API_BASE_URL}/api/v1/user/logout`, { withCredentials: true });
             if (res.data.success) {
                 dispatch(setAuthUser(null));
                 dispatch(setSelectedPost(null));

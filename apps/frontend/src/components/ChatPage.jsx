@@ -8,6 +8,7 @@ import { MessageCircleCode } from 'lucide-react';
 import Messages from './Messages';
 import axios from 'axios';
 import { setMessages } from '@/redux/chatSlice';
+import { API_BASE_URL } from '@/lib/api';
 
 const ChatPage = () => {
     const [textMessage, setTextMessage] = useState("");
@@ -17,7 +18,7 @@ const ChatPage = () => {
 
     const sendMessageHandler = async (receiverId) => {
         try {
-            const res = await axios.post(`//vibesta.onrender.com/api/v1/message/send/${receiverId}`, { textMessage }, {
+            const res = await axios.post(`${API_BASE_URL}/api/v1/message/send/${receiverId}`, { textMessage }, {
                 headers: {
                     'Content-Type': 'application/json'
                 },

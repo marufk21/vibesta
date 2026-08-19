@@ -5,10 +5,9 @@
     "PORT",
     "MONGO_URI",
     "SECRET_KEY",
-    "API_KEY",
-    "API_SECRET",
-    "CLOUD_NAME",
-    "URL"
+    "CLOUDINARY_API_KEY",
+    "CLOUDINARY_API_SECRET",
+    "CLOUDINARY_CLOUD_NAME"
   ],
   "tasks": {
     "build": {

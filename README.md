@@ -19,7 +19,7 @@ The project is a monorepo managed with [Turborepo](https://turbo.build/) and npm
 ```
 .
 ├── apps
-│   ├── backend      # Express.js API, Socket.IO server, serves the frontend build
+│   ├── backend      # Express.js API and Socket.IO server
 │   └── frontend     # React + Vite client
 ├── package.json     # Workspace root, turbo scripts
 └── turbo.json       # Turborepo task pipeline
@@ -58,7 +58,8 @@ The project is a monorepo managed with [Turborepo](https://turbo.build/) and npm
    npm install
    ```
 
-4. Configure the environment variables in `apps/backend/.env` (PORT, MONGO_URI, SECRET_KEY, Cloudinary credentials, URL).
+4. Configure the environment variables in `apps/backend/.env`:
+   `PORT`, `MONGO_URI`, `SECRET_KEY`, `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET`.
 
 ### Development
 
@@ -73,7 +74,7 @@ npm run dev
 
 ### Build
 
-Build all packages with Turborepo (frontend is bundled to `dist/`, backend serves it):
+Build all packages with Turborepo:
 
 ```bash
 npm run build
@@ -81,7 +82,7 @@ npm run build
 
 ### Production
 
-Build the frontend, then start the backend, which serves the built frontend:
+Build the frontend, then start the backend API:
 
 ```bash
 npm run build

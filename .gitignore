@@ -1,5 +1,12 @@
 node_modules
 .turbo
 dist
+.env
 *.log
 .DS_Store
+
+Runnable Localhost
+New UI - Responsive/ Upadate 
+Cleanups / Standards AL file
+Host 
+New Features: Video / *

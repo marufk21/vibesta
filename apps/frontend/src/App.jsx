@@ -13,6 +13,7 @@ import { setSocket } from './redux/socketSlice'
 import { setOnlineUsers } from './redux/chatSlice'
 import { setLikeNotification } from './redux/rtnSlice'
 import ProtectedRoutes from './components/ProtectedRoutes'
+import { SOCKET_URL } from './lib/api'
 
 
 const browserRouter = createBrowserRouter([
@@ -55,7 +56,7 @@ function App() {
 
   useEffect(() => {
     if (user) {
-      const socketio = io('//vibesta.onrender.com', {
+      const socketio = io(SOCKET_URL, {
         query: {
           userId: user?._id
         },
@@ -84,7 +85,10 @@ function App() {
 
   return (
     <>
-      <RouterProvider router={browserRouter} />
+      <RouterProvider
+        router={browserRouter}
+        future={{ v7_startTransition: true }}
+      />
     </>
   )
 }

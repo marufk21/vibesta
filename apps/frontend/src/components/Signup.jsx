@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { Link, useNavigate } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import { useSelector } from 'react-redux';
+import { API_BASE_URL } from '@/lib/api';
 
 const Signup = () => {
     const [input, setInput] = useState({
@@ -23,9 +24,10 @@ const Signup = () => {
 
     const signupHandler = async (e) => {
         e.preventDefault();
+        if (loading) return;
         try {
             setLoading(true);
-            const res = await axios.post('//vibesta.onrender.com/api/v1/user/register', input, {
+            const res = await axios.post(`${API_BASE_URL}/api/v1/user/register`, input, {
                 headers: {
                     'Content-Type': 'application/json'
                 },
@@ -53,7 +55,7 @@ const Signup = () => {
         if (user) {
             navigate("/");
         }
-    }, [])
+    }, [user, navigate])
 
     return (
         <div className="flex items-center w-screen h-screen justify-center bg-gray-100">
@@ -101,7 +103,7 @@ const Signup = () => {
                     />
                 </div>
                 {loading ? (
-                    <Button>
+                    <Button type="button" disabled>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         Please wait
                     </Button>

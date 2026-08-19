@@ -9,6 +9,7 @@ import { Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { setAuthUser } from '@/redux/authSlice';
+import { API_BASE_URL } from '@/lib/api';
 
 const EditProfile = () => {
     const imageRef = useRef();
@@ -42,7 +43,7 @@ const EditProfile = () => {
         }
         try {
             setLoading(true);
-            const res = await axios.post('//vibesta.onrender.com/api/v1/user/profile/edit', formData,{
+            const res = await axios.post(`${API_BASE_URL}/api/v1/user/profile/edit`, formData,{
                 headers:{
                     'Content-Type':'multipart/form-data'
                 },

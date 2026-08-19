@@ -7,6 +7,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setAuthUser } from '@/redux/authSlice';
+import { API_BASE_URL } from '@/lib/api';
 
 const Login = () => {
     const [input, setInput] = useState({
@@ -24,9 +25,10 @@ const Login = () => {
 
     const signupHandler = async (e) => {
         e.preventDefault();
+        if (loading) return;
         try {
             setLoading(true);
-            const res = await axios.post('//vibesta.onrender.com/api/v1/user/login', input, {
+            const res = await axios.post(`${API_BASE_URL}/api/v1/user/login`, input, {
                 headers: {
                     'Content-Type': 'application/json'
                 },
@@ -43,7 +45,8 @@ const Login = () => {
             }
         } catch (error) {
             console.log(error);
-            toast.error(error.response.data.message);
+            const errorMessage = error?.response?.data?.message || "Unable to login. Please try again.";
+            toast.error(errorMessage);
         } finally {
             setLoading(false);
         }
@@ -53,7 +56,7 @@ const Login = () => {
         if (user) {
             navigate("/");
         }
-    }, [])
+    }, [user, navigate])
     return (
         <div className="flex items-center w-screen h-screen justify-center bg-gray-100">
             <form
@@ -89,7 +92,7 @@ const Login = () => {
                     />
                 </div>
                 {loading ? (
-                    <Button>
+                    <Button type="button" disabled>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         Please wait
                     </Button>

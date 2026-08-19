@@ -1,9 +1,12 @@
 import { User } from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
 import getDataUri from "../utils/datauri.js";
 import cloudinary from "../utils/cloudinary.js";
 import { Post } from "../models/post.model.js";
+
+const isDatabaseConnected = () => mongoose.connection.readyState === 1;
 
 export const register = async (req, res) => {
     try {
@@ -11,6 +14,12 @@ export const register = async (req, res) => {
         if (!username || !email || !password) {
             return res.status(401).json({
                 message: "Something is missing, please check!",
+                success: false,
+            });
+        }
+        if (!isDatabaseConnected()) {
+            return res.status(503).json({
+                message: "Database is not connected. Please check MongoDB.",
                 success: false,
             });
         }
@@ -33,6 +42,10 @@ export const register = async (req, res) => {
         });
     } catch (error) {
         console.log(error);
+        return res.status(500).json({
+            message: "Registration failed. Please try again.",
+            success: false,
+        });
     }
 }
 export const login = async (req, res) => {
@@ -41,6 +54,12 @@ export const login = async (req, res) => {
         if (!email || !password) {
             return res.status(401).json({
                 message: "Something is missing, please check!",
+                success: false,
+            });
+        }
+        if (!isDatabaseConnected()) {
+            return res.status(503).json({
+                message: "Database is not connected. Please check MongoDB.",
                 success: false,
             });
         }
@@ -89,6 +108,10 @@ export const login = async (req, res) => {
 
     } catch (error) {
         console.log(error);
+        return res.status(500).json({
+            message: "Login failed. Please try again.",
+            success: false,
+        });
     }
 };
 export const logout = async (_, res) => {
