@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { Dialog, DialogContent, DialogHeader } from './ui/dialog'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Textarea } from './ui/textarea';
@@ -30,7 +30,7 @@ const CreatePost = ({ open, setOpen }) => {
     }
   }
 
-  const createPostHandler = async (e) => {
+  const createPostHandler = async () => {
     const formData = new FormData();
     formData.append("caption", caption);
     if (imagePreview) formData.append("image", file);
