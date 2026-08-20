@@ -7,8 +7,8 @@ import {
   login,
   logout,
   register,
-} from '../controllers/user.controller.js';
-import isAuthenticated from '../middlewares/isAuthenticated.js';
+} from '../controllers/user_controller.js';
+import isAuthenticated from '../middlewares/is_authenticated.js';
 import upload from '../middlewares/multer.js';
 
 const router = express.Router();

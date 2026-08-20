@@ -13,9 +13,9 @@ import { toast } from 'sonner';
 import axios from 'axios';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { setAuthUser } from '@/redux/authSlice';
-import CreatePost from './CreatePost';
-import { setPosts, setSelectedPost } from '@/redux/postSlice';
+import { setAuthUser } from '@/redux/auth-slice';
+import CreatePost from './create-post';
+import { setPosts, setSelectedPost } from '@/redux/post-slice';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { API_BASE_URL } from '@/lib/api';
 import { Separator } from './ui/separator';
@@ -87,7 +87,7 @@ const LeftSidebar = ({ onNavigate = () => {} }) => {
 
   return (
     <div className="flex h-full flex-col px-3 py-6">
-      <h1 className="mb-6 px-3 text-2xl font-bold tracking-tight text-foreground">
+      <h1 className="text-brand-gradient mb-6 px-3 text-2xl font-bold tracking-tight">
         Vibesta
       </h1>
       <nav className="flex flex-1 flex-col gap-1 overflow-y-auto">

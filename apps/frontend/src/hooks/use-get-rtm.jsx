@@ -1,4 +1,4 @@
-import { setMessages } from '@/redux/chatSlice';
+import { setMessages } from '@/redux/chat-slice';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 

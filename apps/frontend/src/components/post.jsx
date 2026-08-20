@@ -9,11 +9,11 @@ import {
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
-import CommentDialog from './CommentDialog';
+import CommentDialog from './comment-dialog';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 import { toast } from 'sonner';
-import { setPosts, setSelectedPost } from '@/redux/postSlice';
+import { setPosts, setSelectedPost } from '@/redux/post-slice';
 import { Badge } from './ui/badge';
 import {
   DropdownMenu,

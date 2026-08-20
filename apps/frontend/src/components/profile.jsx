@@ -1,11 +1,19 @@
 import { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
-import useGetUserProfile from '@/hooks/useGetUserProfile';
+import useGetUserProfile from '@/hooks/use-get-user-profile';
 import { Link, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
-import { AtSign, Grid, Bookmark } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from './ui/dropdown-menu';
+import { AtSign, Grid, Bookmark, MoreHorizontal } from 'lucide-react';
+import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
 const Profile = () => {
@@ -20,6 +28,14 @@ const Profile = () => {
 
   const displayedPost =
     activeTab === 'posts' ? userProfile?.posts : userProfile?.bookmarks;
+
+  const copyProfileLink = () => {
+    const link = `${window.location.origin}/profile/${userProfile?._id}`;
+    navigator.clipboard
+      ?.writeText(link)
+      .then(() => toast.success('Profile link copied!'))
+      .catch(() => toast.error('Could not copy link.'));
+  };
 
   return (
     <div className="mx-auto w-full max-w-4xl px-4 py-6 md:px-8">
@@ -37,10 +53,13 @@ const Profile = () => {
         </Avatar>
 
         <div className="flex w-full flex-col gap-4 md:flex-1">
-          <div className="flex flex-col items-center gap-3 md:flex-row md:flex-wrap md:items-center">
-            <h1 className="text-xl font-semibold">{userProfile?.username}</h1>
+          <div className="flex flex-col items-center gap-2 md:items-start">
+            <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-2 md:justify-start">
+              <h1 className="text-xl font-semibold">{userProfile?.username}</h1>
+            </div>
+
             {isLoggedInUserProfile ? (
-              <div className="flex gap-2">
+              <div className="flex flex-wrap items-center justify-center gap-2 md:justify-start">
                 <Link to="/account/edit">
                   <Button variant="secondary" size="sm">
                     Edit profile
@@ -56,11 +75,48 @@ const Profile = () => {
                 >
                   Ad tools
                 </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm" className="px-2.5">
+                      <MoreHorizontal className="h-4 w-4" />
+                      <span className="sr-only">More options</span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={copyProfileLink}>
+                      Share profile
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={copyProfileLink}>
+                      Copy link
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem>View archive</DropdownMenuItem>
+                    <DropdownMenuItem>Ad tools</DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             ) : (
-              <Button size="sm" className="bg-primary hover:bg-primary/90">
-                Follow
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button size="sm" className="bg-primary hover:bg-primary/90">
+                  Follow
+                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm" className="px-2.5">
+                      <MoreHorizontal className="h-4 w-4" />
+                      <span className="sr-only">More options</span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={copyProfileLink}>
+                      Share profile
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={copyProfileLink}>
+                      Copy link
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             )}
           </div>
 
