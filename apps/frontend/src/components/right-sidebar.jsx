@@ -16,13 +16,17 @@ const RightSidebar = () => {
             </AvatarFallback>
           </Avatar>
         </Link>
-        <div>
-          <h1 className="text-sm font-semibold">
-            <Link to={`/profile/${user?._id}`}>{user?.username}</Link>
+        <div className="min-w-0 flex-1">
+          <h1 className="text-sm font-semibold truncate leading-tight">
+            <Link to={`/profile/${user?._id}`} className="hover:underline">
+              {user?.username}
+            </Link>
           </h1>
-          <span className="text-sm text-muted-foreground">
-            {user?.bio || 'Bio here...'}
-          </span>
+          {user?.bio && (
+            <span className="text-xs text-muted-foreground block truncate max-w-[160px] mt-0.5">
+              {user.bio}
+            </span>
+          )}
         </div>
       </div>
       <SuggestedUsers />

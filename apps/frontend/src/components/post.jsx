@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import {
   Bookmark,
@@ -6,14 +6,21 @@ import {
   MessageCircle,
   MoreHorizontal,
   Send,
+  Share2,
+  Trash2,
+  UserX,
+  Copy,
+  Sparkles,
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import CommentDialog from './comment-dialog';
 import { useDispatch, useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'sonner';
 import { setPosts, setSelectedPost } from '@/redux/post-slice';
+import { setAuthUser } from '@/redux/auth-slice';
 import { Badge } from './ui/badge';
 import {
   DropdownMenu,
@@ -27,16 +34,23 @@ import { API_BASE_URL } from '@/lib/api';
 const Post = ({ post }) => {
   const [text, setText] = useState('');
   const [open, setOpen] = useState(false);
+  const [showHeartBurst, setShowHeartBurst] = useState(false);
+  const [isSubmittingComment, setIsSubmittingComment] = useState(false);
+  const lastTapRef = useRef(0);
+
   const { user } = useSelector((store) => store.auth);
   const { posts } = useSelector((store) => store.post);
-  const [liked, setLiked] = useState(post.likes.includes(user?._id) || false);
-  const [postLike, setPostLike] = useState(post.likes.length);
-  const [comment, setComment] = useState(post.comments);
+  const [liked, setLiked] = useState(post?.likes?.includes(user?._id) || false);
+  const [postLike, setPostLike] = useState(post?.likes?.length || 0);
+  const [comment, setComment] = useState(post?.comments || []);
   const dispatch = useDispatch();
 
+  const isBookmarked = (user?.bookmarks || []).some(
+    (b) => (typeof b === 'string' ? b : b?._id) === post?._id
+  );
+
   const changeEventHandler = (e) => {
-    const inputText = e.target.value;
-    setText(inputText.trim() ? inputText : '');
+    setText(e.target.value);
   };
 
   const likeOrDislikeHandler = async () => {
@@ -61,18 +75,35 @@ const Post = ({ post }) => {
             : p
         );
         dispatch(setPosts(updatedPostData));
-        toast.success(res.data.message);
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 
-  const commentHandler = async () => {
+  const handleImageDoubleTap = () => {
+    const now = Date.now();
+    const DOUBLE_TAP_DELAY = 300;
+    if (now - lastTapRef.current < DOUBLE_TAP_DELAY) {
+      // Trigger double tap
+      setShowHeartBurst(true);
+      setTimeout(() => setShowHeartBurst(false), 800);
+      if (!liked) {
+        likeOrDislikeHandler();
+      }
+    }
+    lastTapRef.current = now;
+  };
+
+  const commentHandler = async (e) => {
+    if (e) e.preventDefault();
+    if (!text.trim() || isSubmittingComment) return;
+
     try {
+      setIsSubmittingComment(true);
       const res = await axios.post(
         `${API_BASE_URL}/api/v1/post/${post._id}/comment`,
-        { text },
+        { text: text.trim() },
         {
           headers: { 'Content-Type': 'application/json' },
           withCredentials: true,
@@ -89,7 +120,9 @@ const Post = ({ post }) => {
         setText('');
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
+    } finally {
+      setIsSubmittingComment(false);
     }
   };
 
@@ -107,8 +140,8 @@ const Post = ({ post }) => {
         toast.success(res.data.message);
       }
     } catch (error) {
-      console.log(error);
-      toast.error(error.response.data.message);
+      console.error(error);
+      toast.error(error?.response?.data?.message || 'Failed to delete post');
     }
   };
 
@@ -120,9 +153,40 @@ const Post = ({ post }) => {
       );
       if (res.data.success) {
         toast.success(res.data.message);
+        if (user) {
+          const currentBookmarks = user.bookmarks || [];
+          const updatedBookmarks =
+            res.data.type === 'saved'
+              ? [...currentBookmarks, post._id]
+              : currentBookmarks.filter(
+                  (b) => (typeof b === 'string' ? b : b?._id) !== post._id
+                );
+          dispatch(setAuthUser({ ...user, bookmarks: updatedBookmarks }));
+        }
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
+    }
+  };
+
+  const handleShare = async () => {
+    const postUrl = `${window.location.origin}/profile/${post?.author?._id}`;
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `Post by ${post?.author?.username}`,
+          text: post?.caption || 'Check out this post on Vibesta',
+          url: postUrl,
+        });
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          navigator.clipboard.writeText(postUrl);
+          toast.success('Post link copied to clipboard!');
+        }
+      }
+    } else {
+      navigator.clipboard.writeText(postUrl);
+      toast.success('Post link copied to clipboard!');
     }
   };
 
@@ -132,45 +196,66 @@ const Post = ({ post }) => {
   };
 
   return (
-    <div className="mb-8 w-full max-w-[470px] rounded-lg border border-border bg-card shadow-sm">
-      <div className="flex items-center justify-between p-3">
-        <div className="flex items-center gap-2">
-          <Avatar>
-            <AvatarImage src={post.author?.profilePicture} alt="post_image" />
-            <AvatarFallback>
-              {post.author?.username?.[0]?.toUpperCase() || 'U'}
-            </AvatarFallback>
-          </Avatar>
+    <article className="mb-6 w-full max-w-[540px] overflow-hidden rounded-2xl border border-border bg-card shadow-xs transition-shadow hover:shadow-md">
+      {/* Post Header */}
+      <div className="flex items-center justify-between px-3.5 py-3">
+        <div className="flex items-center gap-3">
+          <Link to={`/profile/${post.author?._id}`} className="shrink-0">
+            <Avatar className="h-9 w-9 border border-border transition-transform hover:scale-105">
+              <AvatarImage
+                src={post.author?.profilePicture}
+                alt={post.author?.username}
+                className="object-cover"
+              />
+              <AvatarFallback className="text-xs font-semibold">
+                {post.author?.username?.[0]?.toUpperCase() || 'U'}
+              </AvatarFallback>
+            </Avatar>
+          </Link>
           <div className="flex items-center gap-2">
-            <h1 className="text-sm font-semibold">{post.author?.username}</h1>
-            {user?._id === post.author._id && (
-              <Badge variant="secondary">Author</Badge>
+            <Link
+              to={`/profile/${post.author?._id}`}
+              className="text-xs font-semibold text-foreground hover:underline"
+            >
+              {post.author?.username}
+            </Link>
+            {user?._id === post.author?._id && (
+              <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
+                Author
+              </span>
             )}
           </div>
         </div>
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" aria-label="Post options">
-              <MoreHorizontal className="h-5 w-5" />
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 text-muted-foreground hover:text-foreground"
+              aria-label="Post options"
+            >
+              <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48">
-            {post?.author?._id !== user?._id && (
-              <DropdownMenuItem className="cursor-pointer font-semibold text-destructive">
-                Unfollow
-              </DropdownMenuItem>
-            )}
-            <DropdownMenuItem className="cursor-pointer">
-              Add to favorites
+          <DropdownMenuContent align="end" className="w-48 rounded-xl shadow-lg">
+            <DropdownMenuItem onClick={handleShare} className="cursor-pointer text-xs">
+              <Copy className="h-4 w-4 mr-2" />
+              Copy link
             </DropdownMenuItem>
-            {user && user?._id === post?.author._id && (
+            <DropdownMenuItem onClick={bookmarkHandler} className="cursor-pointer text-xs">
+              <Bookmark className="h-4 w-4 mr-2" />
+              {isBookmarked ? 'Remove from saved' : 'Save post'}
+            </DropdownMenuItem>
+            {user && user?._id === post?.author?._id && (
               <>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={deletePostHandler}
-                  className="cursor-pointer font-semibold text-destructive"
+                  className="cursor-pointer text-xs font-semibold text-destructive focus:text-destructive"
                 >
-                  Delete
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete post
                 </DropdownMenuItem>
               </>
             )}
@@ -178,79 +263,137 @@ const Post = ({ post }) => {
         </DropdownMenu>
       </div>
 
-      <img
-        className="aspect-square w-full object-cover"
-        src={post.image}
-        alt="post_img"
-      />
+      {/* Post Image with Double-Tap to Like */}
+      <div
+        onClick={handleImageDoubleTap}
+        className="relative aspect-square w-full cursor-pointer select-none overflow-hidden bg-muted/40"
+      >
+        <img
+          className="h-full w-full object-cover transition-transform duration-300 hover:scale-[1.01]"
+          src={post.image}
+          alt={post.caption || 'post image'}
+          loading="lazy"
+        />
 
-      <div className="flex items-center justify-between px-3 pt-3">
-        <div className="flex items-center gap-3">
+        {/* Double-Tap Heart Burst Animation */}
+        {showHeartBurst && (
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+            <Heart className="h-24 w-24 fill-white text-white drop-shadow-2xl animate-heart-burst" />
+          </div>
+        )}
+      </div>
+
+      {/* Post Action Buttons */}
+      <div className="flex items-center justify-between px-3.5 pt-3">
+        <div className="flex items-center gap-4 sm:gap-5">
           <button
             onClick={likeOrDislikeHandler}
             aria-label="Like"
-            className="transition-colors"
+            className="cursor-pointer transition-transform active:scale-90"
           >
             <Heart
-              className={`h-6 w-6 ${liked ? 'fill-destructive text-destructive' : 'hover:text-muted-foreground'}`}
+              className={`h-6 w-6 transition-all duration-200 ${
+                liked
+                  ? 'fill-rose-500 text-rose-500 animate-like-bounce'
+                  : 'text-foreground hover:text-muted-foreground'
+              }`}
             />
           </button>
           <button
             onClick={openComments}
             aria-label="Comment"
-            className="transition-colors hover:text-muted-foreground"
+            className="cursor-pointer text-foreground transition-transform hover:text-muted-foreground active:scale-90"
           >
             <MessageCircle className="h-6 w-6" />
           </button>
-          <Send className="h-6 w-6 cursor-pointer hover:text-muted-foreground" />
+          <button
+            onClick={handleShare}
+            aria-label="Share"
+            className="cursor-pointer text-foreground transition-all hover:text-muted-foreground hover:scale-105 active:scale-90"
+            title="Share post"
+          >
+            <svg
+              aria-label="Share Post"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="h-6 w-6"
+            >
+              <line x1="22" y1="2" x2="11" y2="13" />
+              <polygon points="22 2 15 22 11 13 2 9 22 2" />
+            </svg>
+          </button>
         </div>
         <button
           onClick={bookmarkHandler}
-          aria-label="Save"
-          className="transition-colors hover:text-muted-foreground"
+          aria-label="Bookmark"
+          className="cursor-pointer transition-transform active:scale-90"
         >
-          <Bookmark className="h-6 w-6" />
+          <Bookmark
+            className={`h-6 w-6 transition-colors ${
+              isBookmarked
+                ? 'fill-foreground text-foreground'
+                : 'text-foreground hover:text-muted-foreground'
+            }`}
+          />
         </button>
       </div>
 
-      <div className="px-3 pb-3 pt-1">
-        <span className="block pb-1 text-sm font-semibold">
-          {postLike} likes
+      {/* Likes & Caption */}
+      <div className="px-3.5 pb-2 pt-1.5 space-y-1">
+        <span className="block text-xs font-bold text-foreground">
+          {postLike.toLocaleString()} {postLike === 1 ? 'like' : 'likes'}
         </span>
-        <p className="text-sm">
-          <span className="mr-2 font-semibold">{post.author?.username}</span>
-          {post.caption}
-        </p>
+        {post.caption && (
+          <p className="text-xs text-foreground leading-relaxed">
+            <Link
+              to={`/profile/${post.author?._id}`}
+              className="mr-1.5 font-bold hover:underline"
+            >
+              {post.author?.username}
+            </Link>
+            {post.caption}
+          </p>
+        )}
         {comment.length > 0 && (
-          <span
+          <button
+            type="button"
             onClick={openComments}
-            className="cursor-pointer text-sm text-muted-foreground"
+            className="cursor-pointer text-xs font-medium text-muted-foreground hover:text-foreground transition-colors block pt-0.5"
           >
-            View all {comment.length} comments
-          </span>
+            View all {comment.length} {comment.length === 1 ? 'comment' : 'comments'}
+          </button>
         )}
       </div>
 
       <CommentDialog open={open} setOpen={setOpen} />
 
-      <div className="flex items-center justify-between gap-2 border-t border-border px-3 py-3">
+      {/* Inline Comment Bar */}
+      <form
+        onSubmit={commentHandler}
+        className="flex items-center justify-between gap-2 border-t border-border px-3.5 py-2.5 bg-card"
+      >
         <Input
           type="text"
           placeholder="Add a comment..."
           value={text}
           onChange={changeEventHandler}
-          className="border-none px-0 shadow-none focus-visible:ring-0"
+          className="h-8 border-none bg-transparent px-0 text-xs shadow-none placeholder:text-muted-foreground focus-visible:ring-0"
         />
-        {text && (
+        {text.trim() && (
           <button
-            onClick={commentHandler}
-            className="cursor-pointer text-sm font-semibold text-primary"
+            type="submit"
+            disabled={isSubmittingComment}
+            className="cursor-pointer text-xs font-bold text-primary hover:text-primary/80 transition-colors disabled:opacity-50"
           >
-            Post
+            {isSubmittingComment ? 'Posting...' : 'Post'}
           </button>
         )}
-      </div>
-    </div>
+      </form>
+    </article>
   );
 };
 

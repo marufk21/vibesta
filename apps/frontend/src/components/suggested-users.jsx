@@ -2,69 +2,85 @@ import { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
-import { Button } from './ui/button';
+import FollowButton from './follow-button';
+import SuggestionsDialog from './suggestions-dialog';
 
 const VISIBLE_COUNT = 5;
 
 const SuggestedUsers = () => {
-  const { suggestedUsers } = useSelector((store) => store.auth);
-  const [showAll, setShowAll] = useState(false);
+  const { suggestedUsers, user: authUser } = useSelector((store) => store.auth);
+  const [suggestionsModalOpen, setSuggestionsModalOpen] = useState(false);
 
-  const visibleUsers = showAll
-    ? suggestedUsers
-    : suggestedUsers.slice(0, VISIBLE_COUNT);
+  const filteredUsers = (suggestedUsers || []).filter(
+    (u) => String(u._id) !== String(authUser?._id)
+  );
+
+  const visibleUsers = filteredUsers.slice(0, VISIBLE_COUNT);
 
   return (
     <div className="mt-8">
-      <div className="flex items-center justify-between text-sm">
-        <h1 className="font-semibold text-muted-foreground">
+      <div className="flex items-center justify-between text-sm mb-3">
+        <span className="font-semibold text-muted-foreground text-xs tracking-tight">
           Suggested for you
-        </h1>
-        {suggestedUsers.length > VISIBLE_COUNT && (
+        </span>
+        {filteredUsers.length > VISIBLE_COUNT && (
           <button
             type="button"
-            onClick={() => setShowAll((prev) => !prev)}
-            className="cursor-pointer font-medium text-primary hover:underline"
+            onClick={() => setSuggestionsModalOpen(true)}
+            className="text-xs font-semibold text-foreground hover:text-muted-foreground cursor-pointer transition-colors"
           >
-            {showAll ? 'See Less' : 'See All'}
+            See all
           </button>
         )}
       </div>
-      {visibleUsers.map((user) => {
-        return (
-          <div
-            key={user._id}
-            className="my-4 flex items-center justify-between"
-          >
-            <div className="flex items-center gap-2">
-              <Link to={`/profile/${user?._id}`}>
-                <Avatar>
-                  <AvatarImage src={user?.profilePicture} alt="post_image" />
-                  <AvatarFallback>
-                    {user?.username?.[0]?.toUpperCase() || 'U'}
-                  </AvatarFallback>
-                </Avatar>
-              </Link>
-              <div>
-                <h1 className="text-sm font-semibold">
-                  <Link to={`/profile/${user?._id}`}>{user?.username}</Link>
-                </h1>
-                <span className="text-sm text-muted-foreground">
-                  {user?.bio || 'Bio here...'}
-                </span>
+
+      <div className="space-y-3.5">
+        {visibleUsers.map((user) => {
+          return (
+            <div
+              key={user._id}
+              className="flex items-center justify-between gap-3"
+            >
+              <div className="flex min-w-0 flex-1 items-center gap-2.5">
+                <Link to={`/profile/${user?._id}`} className="shrink-0">
+                  <Avatar className="h-9 w-9 border border-border">
+                    <AvatarImage
+                      src={user?.profilePicture}
+                      alt={user?.username}
+                      className="object-cover"
+                    />
+                    <AvatarFallback className="text-xs font-semibold">
+                      {user?.username?.[0]?.toUpperCase() || 'U'}
+                    </AvatarFallback>
+                  </Avatar>
+                </Link>
+                <div className="min-w-0 flex-1">
+                  <h4 className="truncate text-xs font-semibold leading-tight text-foreground hover:underline">
+                    <Link to={`/profile/${user?._id}`}>{user?.username}</Link>
+                  </h4>
+                  <span className="block truncate text-[11px] leading-tight text-muted-foreground mt-0.5">
+                    Suggested for you
+                  </span>
+                </div>
+              </div>
+              <div className="shrink-0">
+                <FollowButton targetUser={user} variant="link" />
               </div>
             </div>
-            <Button variant="link" size="sm" className="px-0 font-bold">
-              Follow
-            </Button>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
+
       {visibleUsers.length === 0 && (
-        <p className="py-4 text-sm text-muted-foreground">
-          No suggestions right now.
+        <p className="py-3 text-xs text-muted-foreground">
+          No suggestions available right now.
         </p>
       )}
+
+      <SuggestionsDialog
+        isOpen={suggestionsModalOpen}
+        onClose={() => setSuggestionsModalOpen(false)}
+      />
     </div>
   );
 };

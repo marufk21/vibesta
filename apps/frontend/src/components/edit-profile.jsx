@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from './ui/select';
 import axios from 'axios';
-import { Loader2 } from 'lucide-react';
+import { Camera, Loader2, Save } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { setAuthUser } from '@/redux/auth-slice';
@@ -22,17 +22,21 @@ const EditProfile = () => {
   const imageRef = useRef();
   const { user } = useSelector((store) => store.auth);
   const [loading, setLoading] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState(null);
   const [input, setInput] = useState({
     profilePhoto: user?.profilePicture,
-    bio: user?.bio,
-    gender: user?.gender,
+    bio: user?.bio || '',
+    gender: user?.gender || '',
   });
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const fileChangeHandler = (e) => {
     const file = e.target.files?.[0];
-    if (file) setInput({ ...input, profilePhoto: file });
+    if (file) {
+      setInput({ ...input, profilePhoto: file });
+      setPreviewUrl(URL.createObjectURL(file));
+    }
   };
 
   const selectChangeHandler = (value) => {
@@ -40,11 +44,10 @@ const EditProfile = () => {
   };
 
   const editProfileHandler = async () => {
-    console.log(input);
     const formData = new FormData();
     formData.append('bio', input.bio);
     formData.append('gender', input.gender);
-    if (input.profilePhoto) {
+    if (input.profilePhoto && typeof input.profilePhoto !== 'string') {
       formData.append('profilePhoto', input.profilePhoto);
     }
     try {
@@ -53,9 +56,7 @@ const EditProfile = () => {
         `${API_BASE_URL}/api/v1/user/profile/edit`,
         formData,
         {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
+          headers: { 'Content-Type': 'multipart/form-data' },
           withCredentials: true,
         }
       );
@@ -64,95 +65,132 @@ const EditProfile = () => {
           ...user,
           bio: res.data.user?.bio,
           profilePicture: res.data.user?.profilePicture,
-          gender: res.data.user.gender,
+          gender: res.data.user?.gender,
         };
         dispatch(setAuthUser(updatedUserData));
         navigate(`/profile/${user?._id}`);
-        toast.success(res.data.message);
+        toast.success('Profile updated successfully!');
       }
     } catch (error) {
       console.log(error);
-      toast.error(error.response.data.messasge);
+      toast.error(error?.response?.data?.message || 'Failed to update profile');
     } finally {
       setLoading(false);
     }
   };
+
   return (
-    <div className="mx-auto w-full max-w-2xl px-4 md:px-8">
-      <section className="my-8 flex w-full flex-col gap-6">
-        <h1 className="text-xl font-bold">Edit Profile</h1>
-        <div className="flex flex-col items-start justify-between gap-4 rounded-xl bg-muted p-4 sm:flex-row sm:items-center">
-          <div className="flex items-center gap-3">
-            <Avatar>
-              <AvatarImage src={user?.profilePicture} alt="post_image" />
-              <AvatarFallback>
-                {user?.username?.[0]?.toUpperCase() || 'U'}
-              </AvatarFallback>
-            </Avatar>
-            <div>
-              <h1 className="text-sm font-bold">{user?.username}</h1>
-              <span className="text-muted-foreground">
-                {user?.bio || 'Bio here...'}
-              </span>
-            </div>
+    <div className="mx-auto w-full max-w-2xl md:max-w-3xl px-4 py-6 md:px-8 md:py-10">
+      <h1 className="text-2xl font-bold mb-6">Edit Profile</h1>
+
+      {/* Avatar Section */}
+      <div className="flex items-center gap-4 rounded-2xl border border-border bg-muted/30 p-5 mb-6">
+        <div className="relative group cursor-pointer" onClick={() => imageRef?.current.click()}>
+          <Avatar className="h-16 w-16 border-2 border-border">
+            <AvatarImage
+              src={previewUrl || user?.profilePicture}
+              alt={user?.username}
+            />
+            <AvatarFallback className="text-lg font-bold">
+              {user?.username?.[0]?.toUpperCase() || 'U'}
+            </AvatarFallback>
+          </Avatar>
+          <div className="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+            <Camera className="h-5 w-5 text-white" />
           </div>
-          <input
-            ref={imageRef}
-            onChange={fileChangeHandler}
-            type="file"
-            className="hidden"
-          />
-          <Button
-            onClick={() => imageRef?.current.click()}
-            className="bg-primary hover:bg-primary/90"
-          >
-            Change photo
-          </Button>
         </div>
-        <div className="space-y-1.5">
-          <h1 className="mb-1 text-lg font-bold">Bio</h1>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-bold leading-none">{user?.username}</p>
+          <p className="text-xs text-muted-foreground mt-0.5 truncate">
+            {user?.email}
+          </p>
+          <button
+            type="button"
+            onClick={() => imageRef?.current.click()}
+            className="mt-1.5 text-xs text-primary font-semibold hover:underline underline-offset-2 cursor-pointer"
+          >
+            Change profile photo
+          </button>
+        </div>
+        <input
+          ref={imageRef}
+          onChange={fileChangeHandler}
+          type="file"
+          accept="image/*"
+          className="hidden"
+        />
+      </div>
+
+      {/* Bio */}
+      <div className="space-y-2 mb-5">
+        <label className="text-sm font-bold">Bio</label>
+        <div className="relative">
           <Textarea
             value={input.bio}
             onChange={(e) => setInput({ ...input, bio: e.target.value })}
             name="bio"
-            className="focus-visible:ring-ring"
+            maxLength={150}
+            placeholder="Write something about yourself..."
+            className="resize-none rounded-xl bg-muted/30 border-border focus-visible:ring-primary/30 placeholder:text-muted-foreground text-sm min-h-[80px]"
           />
+          <span className="absolute right-3 bottom-2.5 text-[10px] text-muted-foreground">
+            {input.bio.length}/150
+          </span>
         </div>
-        <div>
-          <h1 className="mb-2 font-bold">Gender</h1>
-          <Select
-            defaultValue={input.gender}
-            onValueChange={selectChangeHandler}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectItem value="male">Male</SelectItem>
-                <SelectItem value="female">Female</SelectItem>
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="flex justify-end">
+      </div>
+
+      {/* Gender */}
+      <div className="space-y-2 mb-8">
+        <label className="text-sm font-bold">Gender</label>
+        <Select defaultValue={input.gender} onValueChange={selectChangeHandler}>
+          <SelectTrigger className="w-full rounded-xl bg-muted/30 border-border text-sm">
+            <SelectValue placeholder="Select gender" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <SelectItem value="male">Male</SelectItem>
+              <SelectItem value="female">Female</SelectItem>
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Actions */}
+      <div className="flex items-center justify-end gap-3">
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          disabled={loading}
+          onClick={() => navigate(`/profile/${user?._id}`)}
+          className="text-sm"
+        >
+          Cancel
+        </Button>
+        <Button
+          onClick={editProfileHandler}
+          disabled={loading}
+          size="sm"
+          className="text-sm gap-1.5 px-5"
+        >
           {loading ? (
-            <Button className="w-fit bg-primary hover:bg-primary/90">
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Please wait
-            </Button>
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Saving...
+            </>
           ) : (
-            <Button
-              onClick={editProfileHandler}
-              className="w-fit bg-primary hover:bg-primary/90"
-            >
-              Submit
-            </Button>
+            <>
+              <Save className="h-4 w-4" />
+              Save changes
+            </>
           )}
-        </div>
-      </section>
+        </Button>
+      </div>
     </div>
   );
 };
 
 export default EditProfile;
+
+
+

@@ -1,22 +1,41 @@
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { Link } from 'react-router-dom';
+import { formatDistanceToNow } from 'date-fns';
 
 const Comment = ({ comment }) => {
+  const timeAgo = comment?.createdAt
+    ? formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })
+    : '';
+
   return (
-    <div className="mb-3">
-      <div className="flex items-start gap-3">
-        <Avatar className="h-8 w-8">
+    <div className="group flex items-start gap-2.5 py-2">
+      <Link to={`/profile/${comment?.author?._id}`} className="shrink-0">
+        <Avatar className="h-7 w-7 border border-border">
           <AvatarImage src={comment?.author?.profilePicture} alt="profile" />
-          <AvatarFallback>
+          <AvatarFallback className="text-[10px] font-semibold">
             {comment?.author?.username?.[0]?.toUpperCase() || 'U'}
           </AvatarFallback>
         </Avatar>
-        <p className="text-sm">
-          <span className="font-semibold">{comment?.author.username}</span>{' '}
-          <span className="pl-1 text-foreground/90">{comment?.text}</span>
+      </Link>
+      <div className="flex-1 min-w-0">
+        <p className="text-[13px] leading-snug">
+          <Link
+            to={`/profile/${comment?.author?._id}`}
+            className="font-bold hover:underline underline-offset-2 mr-1"
+          >
+            {comment?.author?.username}
+          </Link>
+          <span className="text-foreground/90 break-words">{comment?.text}</span>
         </p>
+        {timeAgo && (
+          <span className="mt-0.5 block text-[10px] text-muted-foreground">
+            {timeAgo}
+          </span>
+        )}
       </div>
     </div>
   );
 };
 
 export default Comment;
+
