@@ -4,10 +4,12 @@
   "description": "Vibesta backend API",
   "main": "app.js",
   "type": "module",
-  "scripts": {
+    "scripts": {
     "dev": "nodemon app.js",
     "build": "node --check app.js",
     "start": "node app.js",
+    "seed": "node scripts/seed.js",
+    "seed:verify": "node scripts/verify.js",
     "format": "prettier --write \"**/*.{js,json}\"",
     "format:check": "prettier --check \"**/*.{js,json}\""
   },
@@ -30,6 +32,7 @@
     "socket.io": "^4.8.3"
   },
   "devDependencies": {
+    "@faker-js/faker": "^10.6.0",
     "nodemon": "^3.1.14"
   }
 }
