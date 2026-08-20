@@ -1,9 +1,9 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
-import authSlice from './authSlice.js';
-import postSlice from './postSlice.js';
-import socketSlice from './socketSlice.js';
-import chatSlice from './chatSlice.js';
-import rtnSlice from './rtnSlice.js';
+import authSlice from './auth-slice.js';
+import postSlice from './post-slice.js';
+import socketSlice from './socket-slice.js';
+import chatSlice from './chat-slice.js';
+import rtnSlice from './rtn-slice.js';
 
 import {
   persistReducer,

@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
-import CreatePost from './CreatePost';
+import CreatePost from './create-post';
 import { cn } from '@/lib/utils';
 
 const MobileNav = () => {

@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
-import { setSelectedUser } from '@/redux/authSlice';
+import { setSelectedUser } from '@/redux/auth-slice';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { ArrowLeft, MessageCircleCode } from 'lucide-react';
-import Messages from './Messages';
+import Messages from './messages';
 import { ScrollArea } from './ui/scroll-area';
 import axios from 'axios';
-import { setMessages } from '@/redux/chatSlice';
+import { setMessages } from '@/redux/chat-slice';
 import { API_BASE_URL } from '@/lib/api';
 
 const ChatPage = () => {

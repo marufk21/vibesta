@@ -9,7 +9,7 @@ import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
-import { setPosts } from '@/redux/postSlice';
+import { setPosts } from '@/redux/post-slice';
 import { API_BASE_URL } from '@/lib/api';
 
 const CreatePost = ({ open, setOpen }) => {

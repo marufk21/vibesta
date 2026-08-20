@@ -1,8 +1,8 @@
-import Feed from './Feed';
+import Feed from './feed';
 import { Outlet } from 'react-router-dom';
-import RightSidebar from './RightSidebar';
-import useGetAllPost from '@/hooks/useGetAllPost';
-import useGetSuggestedUsers from '@/hooks/useGetSuggestedUsers';
+import RightSidebar from './right-sidebar';
+import useGetAllPost from '@/hooks/use-get-all-post';
+import useGetSuggestedUsers from '@/hooks/use-get-suggested-users';
 
 const Home = () => {
   useGetAllPost();

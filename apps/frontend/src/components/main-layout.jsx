@@ -1,6 +1,6 @@
 import { Outlet, useNavigate } from 'react-router-dom';
-import LeftSidebar from './LeftSidebar';
-import MobileNav from './MobileNav';
+import LeftSidebar from './left-sidebar';
+import MobileNav from './mobile-nav';
 import { MessageCircle } from 'lucide-react';
 import { Button } from './ui/button';
 

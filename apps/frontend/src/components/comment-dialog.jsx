@@ -10,7 +10,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import Comment from './Comment';
 import axios from 'axios';
 import { toast } from 'sonner';
-import { setPosts } from '@/redux/postSlice';
+import { setPosts } from '@/redux/post-slice';
 import { API_BASE_URL } from '@/lib/api';
 
 const CommentDialog = ({ open, setOpen }) => {
