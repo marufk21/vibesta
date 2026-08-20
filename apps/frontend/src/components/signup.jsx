@@ -9,6 +9,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import { API_BASE_URL } from '@/lib/api';
+import AuthLayout from './auth-layout';
 
 const Signup = () => {
   const [input, setInput] = useState({
@@ -65,24 +66,26 @@ const Signup = () => {
   }, [user, navigate]);
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-muted p-4">
-      <form onSubmit={signupHandler} className="w-full max-w-sm">
-        <Card className="w-full">
-          <CardHeader className="items-center gap-1 text-center">
-            <h1 className="text-xl font-bold">Vibesta</h1>
+    <AuthLayout>
+      <form onSubmit={signupHandler} className="w-full">
+        <Card className="rounded-2xl border-border/60 bg-card/95 shadow-xl shadow-rose-100/50 backdrop-blur-sm">
+          <CardHeader className="items-center gap-1 pb-2 pt-8 text-center">
+            <h1 className="text-2xl font-bold tracking-tight">Create account</h1>
             <p className="text-sm text-muted-foreground">
               Signup to see photos &amp; videos from your friends
             </p>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 px-7 pb-8">
             <div className="space-y-1.5">
               <Label htmlFor="username">Username</Label>
               <Input
                 type="text"
                 id="username"
                 name="username"
+                placeholder="username"
                 value={input.username}
                 onChange={changeEventHandler}
+                className="h-11 rounded-lg"
               />
             </div>
             <div className="space-y-1.5">
@@ -91,8 +94,10 @@ const Signup = () => {
                 type="email"
                 id="email"
                 name="email"
+                placeholder="you@example.com"
                 value={input.email}
                 onChange={changeEventHandler}
+                className="h-11 rounded-lg"
               />
             </div>
             <div className="space-y-1.5">
@@ -101,30 +106,38 @@ const Signup = () => {
                 type="password"
                 id="password"
                 name="password"
+                placeholder="••••••••"
                 value={input.password}
                 onChange={changeEventHandler}
+                className="h-11 rounded-lg"
               />
             </div>
             {loading ? (
-              <Button type="button" disabled className="w-full">
+              <Button type="button" disabled className="h-11 w-full rounded-lg">
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Please wait
               </Button>
             ) : (
-              <Button type="submit" className="w-full">
+              <Button
+                type="submit"
+                className="bg-brand-gradient h-11 w-full rounded-lg font-semibold shadow-md shadow-rose-200 transition-all hover:shadow-lg hover:shadow-rose-200"
+              >
                 Signup
               </Button>
             )}
-            <p className="text-center text-sm text-muted-foreground">
+            <p className="pt-1 text-center text-sm text-muted-foreground">
               Already have an account?{' '}
-              <Link to="/login" className="font-semibold text-primary">
+              <Link
+                to="/login"
+                className="font-semibold text-primary hover:underline"
+              >
                 Login
               </Link>
             </p>
           </CardContent>
         </Card>
       </form>
-    </div>
+    </AuthLayout>
   );
 };
 

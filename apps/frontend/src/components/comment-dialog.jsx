@@ -7,7 +7,7 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { ScrollArea } from './ui/scroll-area';
 import { useDispatch, useSelector } from 'react-redux';
-import Comment from './Comment';
+import Comment from './comment';
 import axios from 'axios';
 import { toast } from 'sonner';
 import { setPosts } from '@/redux/post-slice';

@@ -10,6 +10,7 @@ import { Loader2 } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setAuthUser } from '@/redux/auth-slice';
 import { API_BASE_URL } from '@/lib/api';
+import AuthLayout from './auth-layout';
 
 const Login = () => {
   const [input, setInput] = useState({
@@ -92,24 +93,26 @@ const Login = () => {
     }
   }, [user, navigate]);
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-muted p-4">
-      <form onSubmit={signupHandler} className="w-full max-w-sm">
-        <Card className="w-full">
-          <CardHeader className="items-center gap-1 text-center">
-            <h1 className="text-xl font-bold">Vibesta</h1>
+    <AuthLayout>
+      <form onSubmit={signupHandler} className="w-full">
+        <Card className="rounded-2xl border-border/60 bg-card/95 shadow-xl shadow-rose-100/50 backdrop-blur-sm">
+          <CardHeader className="items-center gap-1 pb-2 pt-8 text-center">
+            <h1 className="text-2xl font-bold tracking-tight">Welcome back</h1>
             <p className="text-sm text-muted-foreground">
               Login to see photos &amp; videos from your friends
             </p>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 px-7 pb-8">
             <div className="space-y-1.5">
               <Label htmlFor="email">Email</Label>
               <Input
                 type="email"
                 id="email"
                 name="email"
+                placeholder="you@example.com"
                 value={input.email}
                 onChange={changeEventHandler}
+                className="h-11 rounded-lg"
               />
             </div>
             <div className="space-y-1.5">
@@ -118,26 +121,25 @@ const Login = () => {
                 type="password"
                 id="password"
                 name="password"
+                placeholder="••••••••"
                 value={input.password}
                 onChange={changeEventHandler}
+                className="h-11 rounded-lg"
               />
             </div>
             {loading ? (
-              <Button type="button" disabled className="w-full">
+              <Button type="button" disabled className="h-11 w-full rounded-lg">
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Please wait
               </Button>
             ) : (
-              <Button type="submit" className="w-full">
+              <Button
+                type="submit"
+                className="bg-brand-gradient h-11 w-full rounded-lg font-semibold shadow-md shadow-rose-200 transition-all hover:shadow-lg hover:shadow-rose-200"
+              >
                 Login
               </Button>
             )}
-            <p className="text-center text-sm text-muted-foreground">
-              Don&apos;t have an account?{' '}
-              <Link to="/signup" className="font-semibold text-primary">
-                Signup
-              </Link>
-            </p>
             <div className="flex items-center gap-2 pt-1">
               <div className="h-px flex-1 bg-muted" />
               <span className="text-xs text-muted-foreground">or</span>
@@ -148,14 +150,23 @@ const Login = () => {
               variant="outline"
               onClick={loginAsTestUser}
               disabled={loading}
-              className="w-full border-dashed text-muted-foreground"
+              className="h-11 w-full rounded-lg border-dashed text-muted-foreground hover:border-primary/40 hover:text-foreground"
             >
               Sign in as Test User
             </Button>
+            <p className="pt-1 text-center text-sm text-muted-foreground">
+              Don&apos;t have an account?{' '}
+              <Link
+                to="/signup"
+                className="font-semibold text-primary hover:underline"
+              >
+                Signup
+              </Link>
+            </p>
           </CardContent>
         </Card>
       </form>
-    </div>
+    </AuthLayout>
   );
 };
 

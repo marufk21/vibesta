@@ -1,19 +1,36 @@
+import { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Button } from './ui/button';
 
+const VISIBLE_COUNT = 5;
+
 const SuggestedUsers = () => {
   const { suggestedUsers } = useSelector((store) => store.auth);
+  const [showAll, setShowAll] = useState(false);
+
+  const visibleUsers = showAll
+    ? suggestedUsers
+    : suggestedUsers.slice(0, VISIBLE_COUNT);
+
   return (
     <div className="mt-8">
       <div className="flex items-center justify-between text-sm">
         <h1 className="font-semibold text-muted-foreground">
           Suggested for you
         </h1>
-        <span className="cursor-pointer font-medium">See All</span>
+        {suggestedUsers.length > VISIBLE_COUNT && (
+          <button
+            type="button"
+            onClick={() => setShowAll((prev) => !prev)}
+            className="cursor-pointer font-medium text-primary hover:underline"
+          >
+            {showAll ? 'See Less' : 'See All'}
+          </button>
+        )}
       </div>
-      {suggestedUsers.map((user) => {
+      {visibleUsers.map((user) => {
         return (
           <div
             key={user._id}
@@ -43,6 +60,11 @@ const SuggestedUsers = () => {
           </div>
         );
       })}
+      {visibleUsers.length === 0 && (
+        <p className="py-4 text-sm text-muted-foreground">
+          No suggestions right now.
+        </p>
+      )}
     </div>
   );
 };

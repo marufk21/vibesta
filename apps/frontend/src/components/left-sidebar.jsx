@@ -87,7 +87,7 @@ const LeftSidebar = ({ onNavigate = () => {} }) => {
 
   return (
     <div className="flex h-full flex-col px-3 py-6">
-      <h1 className="mb-6 px-3 text-2xl font-bold tracking-tight text-foreground">
+      <h1 className="text-brand-gradient mb-6 px-3 text-2xl font-bold tracking-tight">
         Vibesta
       </h1>
       <nav className="flex flex-1 flex-col gap-1 overflow-y-auto">

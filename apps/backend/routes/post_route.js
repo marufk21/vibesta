@@ -11,7 +11,7 @@ import {
   getCommentsOfPost,
   getUserPost,
   likePost,
-} from '../controllers/post.controller.js';
+} from '../controllers/post_controller.js';
 
 const router = express.Router();
 

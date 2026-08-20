@@ -17,7 +17,7 @@ const MainLayout = () => {
       {/* Mobile top bar - logo left, message button right (like Instagram) */}
       <header className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-border bg-background px-4 lg:hidden">
         <span
-          className="cursor-pointer text-xl font-bold tracking-tight"
+          className="text-brand-gradient cursor-pointer text-xl font-bold tracking-tight"
           onClick={() => navigate('/')}
         >
           Vibesta

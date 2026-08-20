@@ -7,7 +7,11 @@ import {
   login,
   logout,
   register,
+<<<<<<< HEAD:apps/backend/routes/user.route.js
 } from '../controllers/user.controller.js';
+=======
+} from '../controllers/user_controller.js';
+>>>>>>> 2682facc0a7f2697b0521bd6613db3248e315dfb:apps/backend/routes/user_route.js
 import isAuthenticated from '../middlewares/is_authenticated.js';
 import upload from '../middlewares/multer.js';
 

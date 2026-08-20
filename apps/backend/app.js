@@ -5,9 +5,9 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import connectDB from './utils/db.js';
-import userRoute from './routes/user.route.js';
-import postRoute from './routes/post.route.js';
-import messageRoute from './routes/message.route.js';
+import userRoute from './routes/user_route.js';
+import postRoute from './routes/post_route.js';
+import messageRoute from './routes/message_route.js';
 import { app, server } from './socket/socket.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
