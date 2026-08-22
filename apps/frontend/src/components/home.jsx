@@ -1,11 +1,9 @@
 import Feed from './feed';
 import { Outlet } from 'react-router-dom';
 import RightSidebar from './right-sidebar';
-import useGetAllPost from '@/hooks/use-get-all-post';
 import useGetSuggestedUsers from '@/hooks/use-get-suggested-users';
 
 const Home = () => {
-  useGetAllPost();
   useGetSuggestedUsers();
   return (
     <div className="flex justify-center gap-6 px-4 py-4 md:px-8 xl:gap-12">

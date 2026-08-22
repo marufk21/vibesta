@@ -33,6 +33,8 @@ const EditProfile = () => {
 
   const fileChangeHandler = (e) => {
     const file = e.target.files?.[0];
+    // Free the previous object URL (if any) to avoid a memory leak.
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
     if (file) {
       setInput({ ...input, profilePhoto: file });
       setPreviewUrl(URL.createObjectURL(file));
@@ -72,7 +74,6 @@ const EditProfile = () => {
         toast.success('Profile updated successfully!');
       }
     } catch (error) {
-      console.log(error);
       toast.error(error?.response?.data?.message || 'Failed to update profile');
     } finally {
       setLoading(false);

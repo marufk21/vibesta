@@ -10,14 +10,14 @@ import { useDispatch, useSelector } from 'react-redux';
 import Comment from './comment';
 import axios from 'axios';
 import { toast } from 'sonner';
-import { setPosts } from '@/redux/post-slice';
+import { addCommentToPost } from '@/redux/post-slice';
 import { API_BASE_URL } from '@/lib/api';
 import { formatDistanceToNow } from 'date-fns';
 
 const CommentDialog = ({ open, setOpen }) => {
   const [text, setText] = useState('');
   const [sending, setSending] = useState(false);
-  const { selectedPost, posts } = useSelector((store) => store.post);
+  const { selectedPost } = useSelector((store) => store.post);
   const { user } = useSelector((store) => store.auth);
   const [comment, setComment] = useState([]);
   const scrollRef = useRef(null);
@@ -56,17 +56,16 @@ const CommentDialog = ({ open, setOpen }) => {
       if (res.data.success) {
         const updatedCommentData = [...comment, res.data.comment];
         setComment(updatedCommentData);
-        const updatedPostData = posts.map((p) =>
-          p._id === selectedPost._id
-            ? { ...p, comments: updatedCommentData }
-            : p
+        dispatch(
+          addCommentToPost({
+            postId: selectedPost._id,
+            comment: res.data.comment,
+          })
         );
-        dispatch(setPosts(updatedPostData));
         setText('');
       }
     } catch (error) {
       toast.error('Failed to post comment');
-      console.log(error);
     } finally {
       setSending(false);
     }

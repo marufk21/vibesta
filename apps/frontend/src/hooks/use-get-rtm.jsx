@@ -1,19 +1,26 @@
-import { setMessages } from '@/redux/chat-slice';
+import { addMessage } from '@/redux/chat-slice';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 const useGetRTM = () => {
   const dispatch = useDispatch();
   const { socket } = useSelector((store) => store.socketio);
-  const { messages } = useSelector((store) => store.chat);
+
+  // Register the "newMessage" listener exactly once per socket connection.
+  // Uses the addMessage reducer (immutable push) so we never capture the whole
+  // messages array in the closure — avoids stale data and listener churn.
   useEffect(() => {
-    socket?.on('newMessage', (newMessage) => {
-      dispatch(setMessages([...messages, newMessage]));
-    });
+    if (!socket) return undefined;
+
+    const handleNewMessage = (newMessage) => {
+      dispatch(addMessage(newMessage));
+    };
+
+    socket.on('newMessage', handleNewMessage);
 
     return () => {
-      socket?.off('newMessage');
+      socket.off('newMessage', handleNewMessage);
     };
-  }, [messages, setMessages]);
+  }, [socket, dispatch]);
 };
 export default useGetRTM;

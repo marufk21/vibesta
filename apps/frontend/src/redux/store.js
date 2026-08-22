@@ -7,6 +7,12 @@ import rtnSlice from './rtn-slice.js';
 
 import {
   persistReducer,
+  FLUSH,
+  REHYDRATE,
+  PAUSE,
+  PERSIST,
+  PURGE,
+  REGISTER,
 } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 
@@ -14,9 +20,14 @@ const persistConfig = {
   key: 'root',
   version: 1,
   storage,
-  // The socket is a non-serializable live connection - it must NOT be
-  // persisted to storage. It is recreated on every app load in App.jsx.
-  blacklist: ['socketio'],
+  // Only persist lightweight auth data. Heavy/transient state (socket, feed
+  // posts, chat messages, notifications) is blacklisted so it isn't written to
+  // localStorage on every update — avoids storage bloat and slow rehydration.
+  // - socket: non-serializable live connection, recreated on load (see App.jsx)
+  // - post:   large feed, refetched on mount (see useGetAllPost)
+  // - chat:   messages refreshed per selected user
+  // - realTimeNotification: ephemeral like toasts
+  blacklist: ['socketio', 'post', 'chat', 'realTimeNotification'],
 };
 
 const rootReducer = combineReducers({
@@ -35,7 +46,7 @@ const store = configureStore({
     getDefaultMiddleware({
       serializableCheck: {
         // Ignore the socket instance which is intentionally non-serializable
-        ignoredActions: ['socketio/setSocket'],
+        ignoredActions: ['socketio/setSocket', FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
         ignoredPaths: ['socketio.socket'],
       },
     }),

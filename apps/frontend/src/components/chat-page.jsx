@@ -16,7 +16,7 @@ import {
 import Messages from './messages';
 import { ScrollArea } from './ui/scroll-area';
 import axios from 'axios';
-import { setMessages } from '@/redux/chat-slice';
+import { addMessage } from '@/redux/chat-slice';
 import { API_BASE_URL } from '@/lib/api';
 import SuggestionsDialog from './suggestions-dialog';
 
@@ -28,7 +28,7 @@ const ChatPage = () => {
   const [suggestionsOpen, setSuggestionsOpen] = useState(false);
 
   const { user, selectedUser } = useSelector((store) => store.auth);
-  const { onlineUsers, messages } = useSelector((store) => store.chat);
+  const { onlineUsers } = useSelector((store) => store.chat);
   const dispatch = useDispatch();
 
   // Message list shows friends the current user follows
@@ -81,7 +81,7 @@ const ChatPage = () => {
         }
       );
       if (res.data.success) {
-        dispatch(setMessages([...(messages || []), res.data.newMessage]));
+        dispatch(addMessage(res.data.newMessage));
       }
     } catch (error) {
       console.error(error);

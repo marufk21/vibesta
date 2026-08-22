@@ -6,22 +6,23 @@ import { API_BASE_URL } from '@/lib/api';
 
 const useGetUserProfile = (userId) => {
   const dispatch = useDispatch();
-  // const [userProfile, setUserProfile] = useState(null);
   useEffect(() => {
+    const controller = new AbortController();
     const fetchUserProfile = async () => {
       try {
         const res = await axios.get(
           `${API_BASE_URL}/api/v1/user/${userId}/profile`,
-          { withCredentials: true }
+          { withCredentials: true, signal: controller.signal }
         );
         if (res.data.success) {
           dispatch(setUserProfile(res.data.user));
         }
       } catch (error) {
-        console.log(error);
+        if (axios.isCancel(error)) return;
       }
     };
     fetchUserProfile();
-  }, [userId]);
+    return () => controller.abort();
+  }, [userId, dispatch]);
 };
 export default useGetUserProfile;

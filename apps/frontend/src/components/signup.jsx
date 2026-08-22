@@ -51,7 +51,6 @@ const Signup = () => {
         toast.error('Unexpected response from server.');
       }
     } catch (error) {
-      console.error('Error during signup:', error);
       const errorMessage =
         error?.response?.data?.message ||
         'An error occurred. Please try again.';
@@ -74,7 +73,6 @@ const Signup = () => {
         toast.success(res.data.message || `Signed in as @${res.data.user?.username}`);
       }
     } catch (error) {
-      console.log(error);
       const errorMessage =
         error?.response?.data?.message ||
         'Unable to sign in as test user. Please try again.';
@@ -94,7 +92,6 @@ const Signup = () => {
 
   return (
     <AuthLayout
-      title="Happening now."
       subtitle="Join Vibesta today and share your story."
     >
       <div className="w-full max-w-sm flex flex-col gap-2 sm:gap-2.5">

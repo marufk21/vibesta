@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Zap, Heart, MessageCircle, Flame } from 'lucide-react';
 
-const AuthLayout = ({ children, title = 'Happening now.', subtitle = 'Join Vibesta today.' }) => {
+const AuthLayout = ({ children, subtitle = 'Join Vibesta today.' }) => {
   const footerLinks = [
     'About',
     'Get App',
@@ -103,16 +103,14 @@ const AuthLayout = ({ children, title = 'Happening now.', subtitle = 'Join Vibes
             </span>
           </div>
 
-          <div className="mb-3 sm:mb-4 text-center lg:text-left w-full">
-            <h1 className="text-[1.6rem] sm:text-3xl lg:text-4xl font-extrabold tracking-tight leading-tight text-foreground">
-              {title}
-            </h1>
-            {subtitle && (
+          {/* Subtitle (title heading removed) */}
+          {subtitle && (
+            <div className="mb-3 sm:mb-4 text-center lg:text-left w-full">
               <p className="mt-1 text-xs sm:text-sm text-muted-foreground font-medium">
                 {subtitle}
               </p>
-            )}
-          </div>
+            </div>
+          )}
 
           {/* Form Content */}
           <div className="w-full">{children}</div>

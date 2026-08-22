@@ -7,19 +7,22 @@ import { API_BASE_URL } from '@/lib/api';
 const useGetSuggestedUsers = () => {
   const dispatch = useDispatch();
   useEffect(() => {
+    const controller = new AbortController();
     const fetchSuggestedUsers = async () => {
       try {
         const res = await axios.get(`${API_BASE_URL}/api/v1/user/suggested`, {
           withCredentials: true,
+          signal: controller.signal,
         });
         if (res.data.success) {
           dispatch(setSuggestedUsers(res.data.users));
         }
       } catch (error) {
-        console.log(error);
+        if (axios.isCancel(error)) return;
       }
     };
     fetchSuggestedUsers();
-  }, []);
+    return () => controller.abort();
+  }, [dispatch]);
 };
 export default useGetSuggestedUsers;

@@ -46,20 +46,42 @@ export const addNewPost = async (req, res) => {
 };
 export const getAllPost = async (req, res) => {
   try {
-    const posts = await Post.find()
-      .sort({ createdAt: -1 })
-      .populate({ path: 'author', select: 'username profilePicture' })
-      .populate({
-        path: 'comments',
-        sort: { createdAt: -1 },
-        populate: {
-          path: 'author',
-          select: 'username profilePicture',
-        },
-      });
+    // Optional pagination for the infinite-scroll feed. Defaults are chosen so
+    // existing clients that don't send params keep working but get a bounded,
+    // performant response instead of the entire collection.
+    const rawPage = Number.parseInt(req.query.page, 10);
+    const rawPageSize = Number.parseInt(req.query.pageSize, 10);
+    const page = Number.isFinite(rawPage) && rawPage > 0 ? rawPage : 1;
+    const pageSize =
+      Number.isFinite(rawPageSize) && rawPageSize > 0 && rawPageSize <= 50
+        ? rawPageSize
+        : 10;
+    const skip = (page - 1) * pageSize;
+
+    const [posts, total] = await Promise.all([
+      Post.find()
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(pageSize)
+        .populate({ path: 'author', select: 'username profilePicture' })
+        .populate({
+          path: 'comments',
+          sort: { createdAt: -1 },
+          populate: {
+            path: 'author',
+            select: 'username profilePicture',
+          },
+        }),
+      Post.countDocuments(),
+    ]);
+
     return res.status(200).json({
       posts,
       success: true,
+      total,
+      page,
+      pageSize,
+      hasMore: skip + posts.length < total,
     });
   } catch (error) {
     console.log(error);

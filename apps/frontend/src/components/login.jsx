@@ -48,7 +48,6 @@ const Login = () => {
         });
       }
     } catch (error) {
-      console.log(error);
       const errorMessage =
         error?.response?.data?.message || 'Unable to login. Please try again.';
       toast.error(errorMessage);
@@ -70,7 +69,6 @@ const Login = () => {
         toast.success(res.data.message || `Signed in as @${res.data.user?.username}`);
       }
     } catch (error) {
-      console.log(error);
       const errorMessage =
         error?.response?.data?.message ||
         'Unable to sign in as test user. Please try again.';
@@ -89,10 +87,7 @@ const Login = () => {
   const isBusy = loading || testLoading;
 
   return (
-    <AuthLayout
-      title="Happening now."
-      subtitle="Sign in to connect, share & explore."
-    >
+    <AuthLayout subtitle="Sign in to connect, share & explore.">
       <div className="w-full max-w-sm flex flex-col gap-2.5 sm:gap-3">
         {/* Instant Demo / Test User 1-Click Button */}
         <Button

@@ -1,13 +1,63 @@
 import Post from './post';
+import { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Sparkles, Camera } from 'lucide-react';
-import { useState } from 'react';
 import CreatePost from './create-post';
 import { Button } from './ui/button';
+import { Skeleton } from './ui/skeleton';
+import useGetAllPost from '@/hooks/use-get-all-post';
+
+const FeedSkeleton = () => (
+  <div className="w-full max-w-[540px]">
+    {[0, 1, 2].map((i) => (
+      <div
+        key={i}
+        className="mb-6 w-full max-w-[540px] overflow-hidden rounded-2xl border border-border bg-card shadow-xs"
+      >
+        <div className="flex items-center gap-3 px-3.5 py-3">
+          <Skeleton className="h-9 w-9 rounded-full" />
+          <div className="space-y-1.5">
+            <Skeleton className="h-3 w-24" />
+            <Skeleton className="h-2.5 w-16" />
+          </div>
+        </div>
+        <Skeleton className="aspect-square w-full rounded-none" />
+        <div className="space-y-2 p-4">
+          <Skeleton className="h-3 w-12" />
+          <Skeleton className="h-2.5 w-3/4" />
+        </div>
+      </div>
+    ))}
+  </div>
+);
 
 const Posts = () => {
   const { posts } = useSelector((store) => store.post);
   const [createOpen, setCreateOpen] = useState(false);
+  const { loading, loadingMore, hasMore, loadMore } = useGetAllPost();
+
+  // Infinite scroll: load the next page when the sentinel enters the viewport.
+  const sentinelRef = useRef(null);
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel || !hasMore) return undefined;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) loadMore();
+      },
+      { rootMargin: '400px 0px' }
+    );
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [hasMore, loadMore]);
+
+  if (loading) {
+    return (
+      <div className="w-full flex flex-col items-center">
+        <FeedSkeleton />
+      </div>
+    );
+  }
 
   if (!posts || posts.length === 0) {
     return (
@@ -37,6 +87,23 @@ const Posts = () => {
       {posts.map((post) => (
         <Post key={post._id} post={post} />
       ))}
+
+      {/* Infinite scroll sentinel */}
+      {hasMore && (
+        <div
+          ref={sentinelRef}
+          className="w-full flex items-center justify-center py-6"
+        >
+          {loadingMore ? (
+            <span className="flex items-center gap-2 text-xs text-muted-foreground">
+              <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+              Loading more...
+            </span>
+          ) : (
+            <span className="h-8 w-full" />
+          )}
+        </div>
+      )}
     </div>
   );
 };

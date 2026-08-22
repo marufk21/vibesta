@@ -1,16 +1,12 @@
-import { useState, useRef } from 'react';
+import { memo, useRef, useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import {
   Bookmark,
   Heart,
   MessageCircle,
   MoreHorizontal,
-  Send,
-  Share2,
   Trash2,
-  UserX,
   Copy,
-  Sparkles,
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -19,9 +15,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'sonner';
-import { setPosts, setSelectedPost } from '@/redux/post-slice';
+import {
+  toggleLikeForPost,
+  addCommentToPost,
+  removePost,
+  setSelectedPost,
+} from '@/redux/post-slice';
 import { setAuthUser } from '@/redux/auth-slice';
-import { Badge } from './ui/badge';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,15 +31,18 @@ import {
 } from './ui/dropdown-menu';
 import { API_BASE_URL } from '@/lib/api';
 
-const Post = ({ post }) => {
+const Post = memo(({ post }) => {
   const [text, setText] = useState('');
   const [open, setOpen] = useState(false);
   const [showHeartBurst, setShowHeartBurst] = useState(false);
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
   const lastTapRef = useRef(0);
 
+  // Only subscribe to the current user (auth). We do NOT read the whole
+  // `posts` array here — by dispatching granular slice actions we keep this
+  // post's render independent of the rest of the feed, and React.memo lets
+  // sibling posts skip re-render when a single post changes.
   const { user } = useSelector((store) => store.auth);
-  const { posts } = useSelector((store) => store.post);
   const [liked, setLiked] = useState(post?.likes?.includes(user?._id) || false);
   const [postLike, setPostLike] = useState(post?.likes?.length || 0);
   const [comment, setComment] = useState(post?.comments || []);
@@ -64,17 +67,11 @@ const Post = ({ post }) => {
         const updatedLikes = liked ? postLike - 1 : postLike + 1;
         setPostLike(updatedLikes);
         setLiked(!liked);
-        const updatedPostData = posts.map((p) =>
-          p._id === post._id
-            ? {
-                ...p,
-                likes: liked
-                  ? p.likes.filter((id) => id !== user._id)
-                  : [...p.likes, user._id],
-              }
-            : p
+        // Granular update — only this post row is invalidated in the store,
+        // so React.memo lets every other post skip re-rendering.
+        dispatch(
+          toggleLikeForPost({ postId: post._id, userId: user._id, liked })
         );
-        dispatch(setPosts(updatedPostData));
       }
     } catch (error) {
       console.error(error);
@@ -112,10 +109,9 @@ const Post = ({ post }) => {
       if (res.data.success) {
         const updatedCommentData = [...comment, res.data.comment];
         setComment(updatedCommentData);
-        const updatedPostData = posts.map((p) =>
-          p._id === post._id ? { ...p, comments: updatedCommentData } : p
+        dispatch(
+          addCommentToPost({ postId: post._id, comment: res.data.comment })
         );
-        dispatch(setPosts(updatedPostData));
         toast.success(res.data.message);
         setText('');
       }
@@ -133,10 +129,7 @@ const Post = ({ post }) => {
         { withCredentials: true }
       );
       if (res.data.success) {
-        const updatedPostData = posts.filter(
-          (postItem) => postItem?._id !== post?._id
-        );
-        dispatch(setPosts(updatedPostData));
+        dispatch(removePost(post?._id));
         toast.success(res.data.message);
       }
     } catch (error) {
@@ -273,6 +266,7 @@ const Post = ({ post }) => {
           src={post.image}
           alt={post.caption || 'post image'}
           loading="lazy"
+          decoding="async"
         />
 
         {/* Double-Tap Heart Burst Animation */}
@@ -395,6 +389,6 @@ const Post = ({ post }) => {
       </form>
     </article>
   );
-};
+});
 
 export default Post;
