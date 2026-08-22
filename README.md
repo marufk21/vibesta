@@ -129,7 +129,31 @@ npm run build
 
 ### Production
 
-Build the frontend, then start the backend API:
+Production is split across two hosts:
+
+- **Frontend** – `https://vibesta-frontend.vercel.app` (Vercel, serves the Vite
+  `dist/` build)
+- **Backend / API** – `https://vibesta.onrender.com` (Render, Express +
+  Socket.IO)
+
+Key production configuration:
+
+- **CORS** – `app.js` and `socket/socket.js` whitelist
+  `https://vibesta.onrender.com` and `https://vibesta-frontend.vercel.app` by
+  default.  Additional origins can be added at deploy time via the
+  `CORS_ORIGINS` environment variable (comma-separated).
+- **Frontend API** – `src/lib/api.js` falls back to
+  `https://vibesta.onrender.com` when `VITE_API_BASE_URL` is unset.  A committed
+  `.env.production` pins both `VITE_API_BASE_URL` and `VITE_SOCKET_URL` to the
+  Render backend so that `vite build` embeds the correct endpoints.
+- **Keep-alive** – `utils/keepAlive.js` pings
+  `https://vibesta.onrender.com/login` (and `streamtalk.onrender.com`) to keep
+  the free-tier Render service warm.  URLs are configurable via
+  `KEEP_ALIVE_URLS`.
+- **Secrets** – keep `MONGO_URI`, `SECRET_KEY`, and Cloudinary credentials in
+  the Render dashboard environment, not in the committed `.env`.
+
+Build the frontend and start the backend API:
 
 ```bash
 npm run build

@@ -16,7 +16,22 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.resolve(__dirname, '.env') });
 
 const PORT = process.env.PORT || 3000;
-const allowedOrigins = ['http://localhost:5173', 'http://127.0.0.1:5173'];
+
+// CORS origins: local dev origins plus production URLs.
+// Frontend is hosted on Vercel; backend/API on Render.
+// Override at deploy time via the CORS_ORIGINS env var (comma-separated).
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
+  'https://vibesta-frontend.vercel.app',
+];
+if (process.env.CORS_ORIGINS) {
+  allowedOrigins.push(
+    ...process.env.CORS_ORIGINS.split(',')
+      .map((o) => o.trim())
+      .filter(Boolean)
+  );
+}
 
 //middlewares
 app.use(express.json());

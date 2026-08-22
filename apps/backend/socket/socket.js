@@ -5,7 +5,21 @@ import http from 'http';
 const app = express();
 
 const server = http.createServer(app);
-const allowedOrigins = ['http://localhost:5173', 'http://127.0.0.1:5173'];
+// CORS origins: local dev origins plus production URLs.
+// Frontend is hosted on Vercel; backend/API on Render.
+// Override at deploy time via the CORS_ORIGINS env var (comma-separated).
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
+  'https://vibesta-frontend.vercel.app',
+];
+if (process.env.CORS_ORIGINS) {
+  allowedOrigins.push(
+    ...process.env.CORS_ORIGINS.split(',')
+      .map((o) => o.trim())
+      .filter(Boolean)
+  );
+}
 
 const io = new Server(server, {
   cors: {
