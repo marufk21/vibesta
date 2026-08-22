@@ -10,8 +10,6 @@ const server = http.createServer(app);
 // Override at deploy time via the CORS_ORIGINS env var (comma-separated).
 const allowedOrigins = [
   'http://localhost:5173',
-  'http://127.0.0.1:5173',
-  'https://vibesta.onrender.com',
   'https://vibesta-frontend.vercel.app',
 ];
 if (process.env.CORS_ORIGINS) {
