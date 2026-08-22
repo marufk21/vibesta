@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import connectDB from './utils/db.js';
+import { startKeepAlive } from './utils/keepAlive.js';
 import userRoute from './routes/user_route.js';
 import postRoute from './routes/post_route.js';
 import messageRoute from './routes/message_route.js';
@@ -41,5 +42,6 @@ app.use((req, res) => {
 
 server.listen(PORT, () => {
   connectDB();
+  startKeepAlive();
   console.log(`Server listen at port ${PORT}`);
 });
