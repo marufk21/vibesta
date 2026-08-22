@@ -99,7 +99,7 @@ const ChatPage = () => {
   const isSelectedUserOnline = selectedUser && onlineUsers.includes(selectedUser?._id);
 
   return (
-    <div className="flex h-[calc(100dvh-3.5rem)] w-full overflow-hidden lg:h-screen bg-background">
+    <div className="flex h-[calc(100dvh-3.5rem-4rem)] w-full overflow-hidden lg:h-screen bg-background">
       {/* Sidebar: Contacts List */}
       <section
         className={`${

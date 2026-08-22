@@ -3,8 +3,8 @@ import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import useGetUserProfile from '@/hooks/use-get-user-profile';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { setSelectedUser } from '@/redux/auth-slice';
-import { setSelectedPost } from '@/redux/post-slice';
+import { setSelectedUser, setAuthUser } from '@/redux/auth-slice';
+import { setPosts, setSelectedPost } from '@/redux/post-slice';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import FollowButton from './follow-button';
@@ -26,9 +26,12 @@ import {
   Share2,
   Copy,
   Image as ImageIcon,
+  LogOut,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import axios from 'axios';
 import { cn } from '@/lib/utils';
+import { API_BASE_URL } from '@/lib/api';
 
 const Profile = () => {
   const params = useParams();
@@ -67,6 +70,23 @@ const Profile = () => {
   const handlePostClick = (post) => {
     dispatch(setSelectedPost(post));
     setCommentModalOpen(true);
+  };
+
+  const logoutHandler = async () => {
+    try {
+      const res = await axios.get(`${API_BASE_URL}/api/v1/user/logout`, {
+        withCredentials: true,
+      });
+      if (res.data.success) {
+        dispatch(setAuthUser(null));
+        dispatch(setSelectedPost(null));
+        dispatch(setPosts([]));
+        navigate('/login');
+        toast.success(res.data.message);
+      }
+    } catch (error) {
+      toast.error(error?.response?.data?.message || 'Logout failed');
+    }
   };
 
   return (
@@ -129,9 +149,18 @@ const Profile = () => {
                       Copy profile link
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild className="cursor-pointer">
-                      <Link to="/account/edit">Edit profile settings</Link>
-                    </DropdownMenuItem>
+                    {isLoggedInUserProfile && (
+                      <>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          onClick={logoutHandler}
+                          className="cursor-pointer text-destructive focus:text-destructive"
+                        >
+                          <LogOut className="h-4 w-4 mr-2" />
+                          Log out
+                        </DropdownMenuItem>
+                      </>
+                    )}
                   </DropdownMenuContent>
                 </DropdownMenu>
               </>
