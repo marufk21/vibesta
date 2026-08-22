@@ -146,6 +146,11 @@ Key production configuration:
   `https://vibesta.onrender.com` when `VITE_API_BASE_URL` is unset.  A committed
   `.env.production` pins both `VITE_API_BASE_URL` and `VITE_SOCKET_URL` to the
   Render backend so that `vite build` embeds the correct endpoints.
+- **Cookies** – The JWT auth cookie is set via `utils/cookieOptions.js`, which
+  reads `COOKIE_SAMESITE` and `COOKIE_SECURE` from the environment.  In
+  production (cross-origin) these must be `none` and `true` respectively so the
+  browser sends the cookie across origins.  Local dev uses `strict` / `false`.
+  An `.env.example` documents all variables.
 - **Keep-alive** – `utils/keepAlive.js` pings
   `https://vibesta.onrender.com/login` (and `streamtalk.onrender.com`) to keep
   the free-tier Render service warm.  URLs are configurable via

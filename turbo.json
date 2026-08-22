@@ -1,7 +1,7 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "ui": "tui",
-    "globalEnv": [
+      "globalEnv": [
     "PORT",
     "MONGO_URI",
     "SECRET_KEY",
@@ -10,7 +10,9 @@
     "CLOUDINARY_CLOUD_NAME",
     "KEEP_ALIVE_INTERVAL_SECONDS",
     "KEEP_ALIVE_URLS",
-    "CORS_ORIGINS"
+    "CORS_ORIGINS",
+    "COOKIE_SAMESITE",
+    "COOKIE_SECURE"
   ],
   "tasks": {
     "build": {

@@ -5,6 +5,7 @@ import mongoose from 'mongoose';
 import getDataUri from '../utils/datauri.js';
 import cloudinary from '../utils/cloudinary.js';
 import { Post } from '../models/post_model.js';
+import { getCookieOptions } from '../utils/cookieOptions.js';
 
 const isDatabaseConnected = () => mongoose.connection.readyState === 1;
 
@@ -102,12 +103,8 @@ export const login = async (req, res) => {
       following: user.following,
       posts: populatedPosts,
     };
-    return res
-      .cookie('token', token, {
-        httpOnly: true,
-        sameSite: 'strict',
-        maxAge: 1 * 24 * 60 * 60 * 1000,
-      })
+        return res
+      .cookie('token', token, getCookieOptions())
       .json({
         message: `Welcome back ${user.username}`,
         success: true,
@@ -122,11 +119,13 @@ export const login = async (req, res) => {
   }
 };
 export const logout = async (_, res) => {
-  try {
-    return res.cookie('token', '', { maxAge: 0 }).json({
-      message: 'Logged out successfully.',
-      success: true,
-    });
+    try {
+    return res
+      .cookie('token', '', { ...getCookieOptions(), maxAge: 0 })
+      .json({
+        message: 'Logged out successfully.',
+        success: true,
+      });
   } catch (error) {
     console.log(error);
   }
@@ -190,12 +189,8 @@ export const testLogin = async (req, res) => {
       posts: populatedPosts.filter(Boolean),
     };
 
-    return res
-      .cookie('token', token, {
-        httpOnly: true,
-        sameSite: 'strict',
-        maxAge: 1 * 24 * 60 * 60 * 1000,
-      })
+        return res
+      .cookie('token', token, getCookieOptions())
       .json({
         message: `Welcome back @${user.username}`,
         success: true,
